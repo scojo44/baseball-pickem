@@ -1,0 +1,27 @@
+SQLALCHEMY_DATABASE_URI = 'postgresql:///pickem'
+SQLALCHEMY_ECHO = false
+SCHEDULER_API_ENABLED = true
+SECRET_KEY = 'Flask-Session-Key-751xyiienld983lndl'
+DEBUG_TB_INTERCEPT_REDIRECTS = false
+
+# Flask-APScheduler expects jobs to be an array of dicts, an array of tables in TOML
+[[JOBS]]
+id = "update_baseball_schedule"
+func = "app.api.baseball:check_for_game_updates"
+trigger = "interval"
+days = 1
+start_date = "01:00:00"
+
+[[JOBS]]
+id = "update_baseball_yesterday_late_game_scores"
+func = "app.api.baseball:check_for_late_game_scores"
+trigger = "interval"
+days = 1
+start_date = "04:00:00" # Extreme extra-inning games should be finished by this time
+
+[[JOBS]]
+id = "update_baseball_current_scores"
+func = "app.api.baseball:check_for_score_updates"
+trigger = "interval"
+minutes = 20
+# seconds = 4 # For testing
