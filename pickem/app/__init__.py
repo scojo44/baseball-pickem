@@ -6,6 +6,7 @@ from .extensions import debug_toolbar, scheduler
 from .models import db, User
 from .forms import SecureEmptyForm
 from .blueprints import CURR_USER_KEY
+from .api.baseball import check_for_score_updates
 
 def create_app():
     """Initialize the Pickem application."""
@@ -25,6 +26,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        # check_for_score_updates() # Update scores on startup or seed the database if needed.
 
         # Register blueprints
         from .blueprints import auth_bp, user_bp
@@ -40,13 +42,9 @@ def create_app():
             Logged in user: Invite to make picks or show list of current picks
             """
             if g.user:
-                return render_template('home.html.jinja', empty_form=SecureEmptyForm())
+                return render_template('home_user.html.jinja', empty_form=SecureEmptyForm())
             else:
-                return render_template('home-anon.html.jinja')
-
-        @app.get('/espn')
-        def test_espn():
-            """Play with the ESPN API"""
+                return render_template('home_anon.html.jinja')
 
         @app.errorhandler(404)
         def show_not_found(e):

@@ -1,0 +1,9 @@
+{% extends 'base_anon.html.jinja' %}
+{% block content %}
+  <div class="hero-landing">
+    <p>Think you know baseball?</p>
+    <p><a href="{{ url_for('auth.signup') }}" class="btn btn-success">PLAY&nbsp;&nbsp;now</a></p>
+    <p>Put your knowledge to the test!</p>
+    {# <p>Pick which teams you think will win from a list of games to win bragging rights!</p> #}
+  </div>
+{% endblock %}

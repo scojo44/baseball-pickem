@@ -1,0 +1,10 @@
+{% extends 'users/detail.html.jinja' %}
+{% block user_details %}
+  <div class="col-sm-6">
+    <ul class="list-group" id="messages">
+      {% for message in messages %}
+        {% include "messages/_list_card.html.jinja" %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

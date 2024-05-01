@@ -1,0 +1,30 @@
+{% extends 'base.html.jinja' %}
+{% block main %}
+  <nav class="navbar navbar-expand">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a href="{{ url_for('home') }}" class="navbar-brand">
+          <span>Baseball Pick'em</span>
+        </a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        {% if not g.user %}
+          <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+        {% else %}
+          <li><a href="{{ url_for('auth.logout') }}">Log out</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    {% block content required %}
+    {% endblock %}
+  </div>
+
+  {% if empty_form %}
+    <form id="empty-form">
+      {{ empty_form.hidden_tag() }}
+    </form>
+  {% endif %}
+{% endblock %}

@@ -120,14 +120,14 @@ def check_for_game_updates(): # Runs once per day
         check_for_updates(datetime.now().date() + timedelta(days=1), 1, SubSeason.get(1))
 
 def check_for_late_game_scores(): # Runs once per day
-    """Check for the latest game scores."""
-    with scheduler.app.app_context():
-        check_for_updates(datetime.now().date(), 1, SubSeason.get(1))
-
-def check_for_score_updates(): # Runs every twenty minutes
     """Check scores for yesterday's late games."""
     with scheduler.app.app_context():
         check_for_updates(datetime.now().date() - timedelta(days=1), 1, SubSeason.get(1))
+
+def check_for_score_updates(): # Runs every twenty minutes
+    """Check for the latest game scores."""
+    with scheduler.app.app_context():
+        check_for_updates(datetime.now().date(), 1, SubSeason.get(1))
 
 def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
     """Update game records with current scores, changed start times.

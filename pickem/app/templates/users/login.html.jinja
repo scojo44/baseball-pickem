@@ -1,0 +1,23 @@
+{% extends 'base_anon.html.jinja' %}
+{% block body_class %}onboarding{% endblock %}
+{% block content %}
+  <div class="auth-form">
+    <h2 class="join-message">Welcome Back</h2>
+
+    <form method="post" id="user_form">
+      {{ form.hidden_tag() }}
+
+      {% for field in form if field.widget.input_type != 'hidden' %}
+        <div class="row g-0 align-items-center">
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          <div class="col-3 text-end">{{ field.label }}</div>
+          <div class="col-9">{{ field(class="form-control") }}</div>
+        </div>
+      {% endfor %}
+
+      <button class="btn btn-success btn-block btn-lg">LOG &nbsp; in</button>
+    </form>
+  </div>
+{% endblock %}
