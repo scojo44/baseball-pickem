@@ -1,23 +1,21 @@
-{% extends 'base_anon.html.jinja' %}
-{% block body_class %}onboarding{% endblock %}
+{% extends 'base_onboarding.html.jinja' %}
 {% block content %}
   <div class="auth-form">
-    <h2 class="join-message">Welcome Back</h2>
+    <h2>Log in to check your picks</h2>
 
-    <form method="post" id="user_form">
+    <form method="post" action="{{ url_for('auth.login') }}">
       {{ form.hidden_tag() }}
 
       {% for field in form if field.widget.input_type != 'hidden' %}
-        <div class="row g-0 align-items-center">
-          {% for error in field.errors %}
-            <span class="text-danger">{{ error }}</span>
-          {% endfor %}
-          <div class="col-3 text-end">{{ field.label }}</div>
-          <div class="col-9">{{ field(class="form-control") }}</div>
-        </div>
+        {{ field.label }}
+        {{ field(class="form-control") }}
+        {% for error in field.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
       {% endfor %}
 
-      <button class="btn btn-success btn-block btn-lg">LOG &nbsp; in</button>
+      <button>LOG &nbsp; in</button>
+      <p class="auth-alt">New around here?  <a id="signup-link" href="{{ url_for('games.picksheet') }}">Play now!</a></p>
     </form>
   </div>
 {% endblock %}

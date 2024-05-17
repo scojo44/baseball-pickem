@@ -1,0 +1,27 @@
+{% extends 'base_nav.html.jinja' %}
+{% block content %}
+  <h1>My Picks</h1>
+  <p>Select a date to view your picks</p>
+  <div id="my-picks">
+    <div>
+      <table>
+        <tr><th>Date</th><th>Points</th></tr>
+        {% for day in dates.keys()|reverse %}
+        <tr class="date-link" data-date="{{ day }}">
+          <td>{{ dates[day]['date_heading'] }}</td><td>{{ dates[day]['points'] }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div>
+      {% if need_make_picks_button %}
+      <p><a class="button" href="{{ url_for('games.picksheet') }}"><button>MAKE YOur picks</button></a></p>
+      {% endif %}
+      <h5 id="date-label-text"></h5>
+      <ul id="scoreboard" class="games-list"></ul>
+    </div>
+  </div>
+
+  <script src="/static/js/datedlist.js"></script>
+  <script src="/static/js/scoreboard.js"></script>
+{% endblock %}

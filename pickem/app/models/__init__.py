@@ -17,8 +17,6 @@ fk_subseason = Annotated[int, mapped_column(ForeignKey("subseasons.id"))]
 fk_league = Annotated[int, mapped_column(ForeignKey("leagues.id"))]
 fk_team = Annotated[int, mapped_column(ForeignKey("teams.id"))]
 fk_game = Annotated[int, mapped_column(ForeignKey("games.id"))]
-fk_pick_period = Annotated[int, mapped_column(ForeignKey("pick_periods.id"))]
-fk_pick_sheet = Annotated[int, mapped_column(ForeignKey("pick_sheets.id"))]
 # Aliases for length-limited strings
 str20 = Annotated[str, 20]
 str50 = Annotated[str, 50]
@@ -44,6 +42,4 @@ from .subseason import SubSeason, SubSeasonType
 from .league import League
 from .team import Team
 from .game import Game, GameStatus
-from .pick_period import PickPeriod
-from .pick_sheet import PickSheet
 from .pick import Pick

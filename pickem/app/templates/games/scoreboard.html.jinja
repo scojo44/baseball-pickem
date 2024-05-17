@@ -1,0 +1,20 @@
+{% extends 'base_nav.html.jinja' %}
+{% block content %}
+  <h1>Scores & Schedule</h1>
+
+  <div id="scoreboard-header">
+    {% include "games/_date_picker.html.jinja" %}
+
+    {% if g.user %}
+    <h5 id="user-points"><span></span> Points</h5>
+    {% endif %}
+  </div>
+
+  <ul id="scoreboard" class="games-list"></ul>
+
+  <p>Your picks are marked with a &#x2713;.
+  <br>Scores update every 20 minutes.</p>
+
+  <script src="/static/js/datedlist.js"></script>
+  <script src="/static/js/scoreboard.js"></script>
+{% endblock %}

@@ -1,13 +1,15 @@
-from flask import request, redirect, render_template, flash, url_for, g
+from flask import request, redirect, render_template, flash, session, url_for, g
 from sqlalchemy.exc import IntegrityError
 from ...models import db, User
-from ...forms import UserAddForm, LoginForm
-from ..login import do_login, do_logout
+from ...forms import LoginForm, SignupForm
+from ..picks import UNSAVED_PICKS_KEY
+from ..picks.routes import save_session_picks
+from .login import do_login, do_logout
 from . import bp
 
-@bp.route('/signup', methods=["GET", "POST"])
+@bp.route('/signup', methods=['GET','POST'])
 def signup():
-    """Handle user signup.
+    """Handle user sign up.
 
     Create new user and add to DB. Redirect to home page.
 
@@ -19,41 +21,42 @@ def signup():
     if g.user:
         return redirect(url_for("home"))
 
-    form = UserAddForm()
+    form = SignupForm()
 
     if form.validate_on_submit():
         try:
             user = User.signup(
                 username=form.username.data,
-                password=form.password.data,
-                email=form.email.data,
-                image_url=form.image_url.data or User.image_url.default.arg
+                password=form.password.data
+                # email=form.email.data,
+                # image_url=form.image_url.data or User.image_url.default.arg
             )
             db.session.commit()
         except IntegrityError:
-            flash(f"Sorry, username @{form.username.data} is already taken.", 'danger')
-            return render_template('users/signup.html.jinja', form=form)
+            flash(f"Sorry, username @{form.username.data} is already taken.  Did you mean to log in?  Find Login link below.", 'danger')
 
-        do_login(user)
-        return redirect(url_for("home"))
-    else:
-        return render_template('users/signup.html.jinja', form=form)
+        if user:
+            do_login(user)
+            save_session_picks(user)
+            return redirect(url_for("home"))
 
-@bp.route('/login', methods=["GET", "POST"])
+    return render_template('users/signup.html.jinja', form=form)
+
+@bp.route('/login', methods=['GET','POST'])
 def login():
     """Handle user login."""
     if g.user:
         return redirect(url_for("home"))
 
-    # Save the URL if the user tried to access a page while not logged in.
     form = LoginForm()
-    form.next.data = request.args.get("next")
+    form.next.data = request.args.get("next") # If user hit a page while not logged in
 
     if form.validate_on_submit():
         user = User.authenticate(form.username.data, form.password.data)
 
         if user:
             do_login(user)
+            save_session_picks(user)
             flash(f"Hello, {user.username}!", "success")
             return redirect(form.next.data or url_for("home"))
 
@@ -65,5 +68,5 @@ def login():
 def logout():
     """Handle logout of user."""
     do_logout()
-    flash("You have been logged out.  Thanks for coming!", "success")
+    flash("You have been logged out.  Thanks for playing!", "success")
     return redirect(url_for("auth.login"))

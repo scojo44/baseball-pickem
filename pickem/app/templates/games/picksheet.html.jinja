@@ -1,0 +1,15 @@
+{% extends 'base_nav.html.jinja' %}
+{% block content %}
+  <h1>Make Your Picks</h1>
+  <p>Pick the teams you think will win!</p>
+
+  <section id="games-to-pick"></section>
+
+  <button id="save-button">SAVE &nbsp; picks</button>
+
+  <form id="pick-form" method="post">
+  {{ form.hidden_tag() }}
+  </form>
+
+  <script src="/static/js/picksheet.js"></script>
+{% endblock %}

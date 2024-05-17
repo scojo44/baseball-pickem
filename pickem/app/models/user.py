@@ -1,5 +1,6 @@
+from datetime import date
 from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..extensions import bcrypt
 from .helper import DBHelperMixin
 from . import db, int_pk, str50, str_email, str_bcrypt_hash
@@ -9,24 +10,29 @@ class User(DBHelperMixin, db.Model):
     __tablename__ = 'users'
 
     id: Mapped[int_pk]
-    email: Mapped[str_email] = mapped_column(unique=True)
+    # email: Mapped[str_email] = mapped_column(unique=True)
     username: Mapped[str50] = mapped_column(unique=True)
     password: Mapped[str_bcrypt_hash]
-    image_url: Mapped[Optional[str]] = mapped_column(default="/static/images/default-pic.png")
-    header_image_url: Mapped[Optional[str]] = mapped_column(default="/static/images/warbler-hero.jpg")
-    location: Mapped[Optional[str50]]
+    # image_url: Mapped[Optional[str]] = mapped_column(default="/static/images/default-pic.png")
 
     # "Many" side of one-to-many relationships
-    pick_sheets: Mapped[list['PickSheet']] = db.relationship(back_populates='user', cascade='all')
+    picks: Mapped[list['Pick']] = relationship(back_populates='user', cascade='all')
 
     def __repr__(self):
-        return f"<User #{self.id}: {self.username}, {self.email}>"
+        return f"<User #{self.id}: {self.username}>"
+
+    @property
+    def correct_picks(self, day = None):
+        if day:
+            return [p for p in self.picks if p.is_correct and day == p.game.start_time.date()]
+        else: # Return picks from all time
+            return [p for p in self.picks if p.is_correct]
 
     @classmethod
-    def signup(cls, username, email, password, image_url):
+    def signup(cls, username, password):
         """Sign up user.  Hashes password and adds user to system."""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        user = User(username=username, email=email, password=hashed_pwd, image_url=image_url)
+        user = User(username=username, password=hashed_pwd)
 
         db.session.add(user)
         return user

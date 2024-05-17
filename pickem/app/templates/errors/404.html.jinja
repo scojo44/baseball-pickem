@@ -1,7 +1,10 @@
-{% extends 'base.html.jinja' %}
-{% block title %}Not Found{% endblock %}
+{% extends 'base_onboarding.html.jinja' %}
+{% block title -%} Not Found {%- endblock %}
 
 {% block content %}
-  <h1>404 - DNF!</h1>
-  <p>You logged a Did Not Find on whatever you were looking for.</p>
+  <div class="error-page">
+    <h2>404 - Swing and miss!</h2>
+    <p>Sorry, that page doesn't exist.</p>
+    <p><a class="button" href="{{ url_for('home') }}"><button>HOme</button></a></p>
+  </div>
 {% endblock %}

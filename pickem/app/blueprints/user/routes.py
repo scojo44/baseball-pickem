@@ -1,7 +1,7 @@
 from flask import request, redirect, render_template, flash, url_for, g
 from ...models import db, User
 from ...forms import UserProfileForm, SecureEmptyForm
-from ..login import login_required, do_logout
+from ..auth.login import login_required, do_logout
 from . import bp
 
 @bp.get('/users')

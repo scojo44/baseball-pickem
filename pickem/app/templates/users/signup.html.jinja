@@ -1,23 +1,21 @@
-{% extends 'base_anon.html.jinja' %}
-{% block body_class %}onboarding{% endblock %}
+{% extends 'base_onboarding.html.jinja' %}
 {% block content %}
   <div class="auth-form">
-    <h2 class="join-message">Sign up to save your picks</h2>
+    <h2>Sign up to save your picks</h2>
 
-    <form method="post" id="user_form">
+    <form method="post" action="{{ url_for('auth.signup') }}">
       {{ form.hidden_tag() }}
 
       {% for field in form if field.widget.input_type != 'hidden' %}
-        <div class="row g-0 align-items-center">
+          {{ field.label }}
+          {{ field(class="form-control") }}
           {% for error in field.errors %}
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
-          <div class="col-3 text-end">{{ field.label }}</div>
-          <div class="col-9">{{ field(class="form-control") }}</div>
-        </div>
       {% endfor %}
 
-      <button class="btn btn-success btn-lg btn-block">SIGN &nbsp; up</button>
+      <button>SIGN &nbsp; up</button>
+      <p class="auth-alt">Already done this?  <a id="login-link" href="{{ url_for('auth.login' )}}">Log in</a></p>
     </form>
   </div>
 {% endblock %}

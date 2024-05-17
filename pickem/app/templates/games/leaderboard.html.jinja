@@ -1,0 +1,43 @@
+{% extends 'base_nav.html.jinja' %}
+{% block content %}
+  <h1>Loaderboard</h1>
+  <p>Select a date to browse daily top players.</p>
+
+  <div id="leaders">
+    <div>
+      {% include "games/_date_picker.html.jinja" %}
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard"></tbody>
+      </table>
+    </div>
+
+    <div>
+      <h5>Season</h5>
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody id="season-leaders">
+        {% for user in season_leaders %}
+        <tr>
+          <td>{{ user['name'] }}</td>
+          <td>{{ user['points'] }}</td>        
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="/static/js/datedlist.js"></script>
+  <script src="/static/js/leaderboard.js"></script>
+{% endblock %}

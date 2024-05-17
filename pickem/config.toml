@@ -3,6 +3,7 @@ SQLALCHEMY_ECHO = false
 SCHEDULER_API_ENABLED = true
 SECRET_KEY = 'Flask-Session-Key-751xyiienld983lndl'
 DEBUG_TB_INTERCEPT_REDIRECTS = false
+DEBUG_TB_HOSTS = ["dont-show-debug-toolbar"]
 
 # Flask-APScheduler expects jobs to be an array of dicts, an array of tables in TOML
 [[JOBS]]
