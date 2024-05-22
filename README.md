@@ -7,6 +7,8 @@ How to Play
 -----------
 This is set up as "do the fun part first."  From the landing page, hit Play Now and make your picks.  From there, sign up or log in to save your picks and check on them later.  Correct picks will earn one point each.  Once logged in, your picks are shown on the My Picks page and you can see who earned the most points on the Leaderboard page by day and the season overall.
 
+Game scores are updated every 20 minutes since the all-sports.io API free tier allows only 100 requests per day.
+
 Under the Hood
 --------------
 The site is coded in Python using Flask, SQLAlchemy with data stored in a PostgreSQL database.
@@ -17,14 +19,17 @@ APIs
 ----
 I use these MLB baseball APIs:
 - [api-sports.io](https://api-sports.io/)
+  - Free tier allows 100 requests per day
 - [ESPN's hidden API endpoints](https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b)
 
 I may switch to just using ESPN's API for this, api-sports.io still hasn't updated the name of the Cleveland Guardians, still calling them the Indians and the game schedule returned is incomplete, seems to fizzle out in September.  I hope they will fill in the remaining games by then!
 
-Deploying
----------
+Deploying on Render
+-------------------
 - Gunicorn command: `gunicorn --bind=0.0.0.0:$PORT app:create_app\(\'config_live\'\)`
-  - Have to escape the () and quotes since Render uses bash to run this.
+  - Have to escape the () and quotes since Render uses bash to run this.  Might be a security issue on their part!
+  - Render sets the port they want you to use in the PORT environment variable
+
 - Set environment variables:
   - `FLASK_SQLALCHEMY_DATABASE_URI` Start URI with postgrsql://
   - `FLASK_SECRET_KEY` for secure Flask session cookies.  Set to anything and don't tell anyone.
