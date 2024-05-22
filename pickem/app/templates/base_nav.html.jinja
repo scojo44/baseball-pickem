@@ -15,12 +15,13 @@
 
     <menu>
       {% if not g.user %}
-      <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+      <li><a href="{{ url_for('user.login') }}">Log In</a></li>
       {% else %}
-      <li><a href="{{ url_for('picks.list') }}">My Picks</a></li>
-      <li><a href="{{ url_for('games.scoreboard') }}">Scoreboard</a></li>
-      <li><a href="{{ url_for('games.leaderboard') }}">Leaderboard</a></li>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+      <li><a href="{{ url_for('game.my_picks') }}">My Picks</a></li>
+      <li><a href="{{ url_for('game.scoreboard') }}">Scoreboard</a></li>
+      <li><a href="{{ url_for('game.leaderboard') }}">Leaderboard</a></li>
+      <li><a href="{{ url_for('user.profile') }}">Profile</a></li>
+      <li><a href="{{ url_for('user.logout') }}">Log Out</a></li>
       {% endif %}
     </menu>
   </nav>

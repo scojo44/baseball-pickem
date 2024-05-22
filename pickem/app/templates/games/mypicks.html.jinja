@@ -4,7 +4,7 @@
   <p>Select a date to view your picks</p>
   <div id="my-picks">
     <div>
-      <table>
+      <table id="pick-dates">
         <tr><th>Date</th><th>Points</th></tr>
         {% for day in dates.keys()|reverse %}
         <tr class="date-link" data-date="{{ day }}">
@@ -13,12 +13,19 @@
         {% endfor %}
       </table>
     </div>
+
     <div>
       {% if need_make_picks_button %}
-      <p><a class="button" href="{{ url_for('games.picksheet') }}"><button>MAKE YOur picks</button></a></p>
+      <p class="button-row">
+        <a class="button" href="{{ url_for('game.picksheet') }}"><button>MAKE YOur picks</button></a>
+      </p>
       {% endif %}
       <h5 id="date-label-text"></h5>
-      <ul id="scoreboard" class="games-list"></ul>
+      <ul id="scoreboard" class="games-list" data-initial-date="{{ dates.keys()|reverse|first }}"></ul>
+
+      <p>Your picks are marked with a &#x2713;.
+      <br>Scores update every 20 minutes.
+      <br>Times are shown in your timezone</p>
     </div>
   </div>
 

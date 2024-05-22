@@ -46,7 +46,7 @@ class DatedList {
     nextLink.dataset.date = res.data.nextDay;
     prevLink.dataset.date = res.data.prevDay;
 
-    if(res.data.userPoints)
+    if(res.data.userPoints !== undefined)
       document.querySelector('#user-points span').innerHTML = res.data.userPoints;
   }
 

@@ -4,10 +4,11 @@
       <div class="image-wrapper">
         <img src="{{ g.user.header_image_url }}" alt="" class="card-hero">
       </div>
-      {# <a href="{{ url_for('user.messages', user_id=g.user.id) }}" class="card-link"> #}
-        <img src="{{ g.user.image_url }}" alt="Image for {{ g.user.username }}" class="card-image">
-        <p>@{{ g.user.username }}</p>
-      {# </a> #}
+
+      <img src="{{ g.user.image_url }}" alt="Image for {{ g.user.username }}" class="card-image">
+
+      <p>@{{ g.user.username }}</p>
+
       <ul class="user-stats nav nav-pills">
         User Statistics
       </ul>

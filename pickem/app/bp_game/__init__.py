@@ -1,6 +1,6 @@
 from flask import Blueprint
 
 UNSAVED_PICKS_KEY = 'Game Picks Session Key'
-bp = Blueprint("picks", __name__, url_prefix="/picks")
+bp = Blueprint("game", __name__)
 
 from . import routes

@@ -1,7 +1,9 @@
 """Baseball API updates provided by api-sports.io"""
 import os
-from datetime import datetime, date, timedelta
+import json
 import requests
+from datetime import datetime, date, timedelta
+from flask import current_app as app
 from ..extensions import scheduler
 from ..models import db, Sport, League, Team, Season, SubSeason, SubSeasonType, Game
 
@@ -12,6 +14,9 @@ API_ESPN_PREFIX = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/'
 
 def call_sports_io_api(endpoint: str, params: dict = {}) -> dict:
     """Call the Sports.io API.  params is a dict containing query string parameters."""
+    if not os.environ.get('SPORTS_IO_API_KEY'):
+        raise "Missing API key environment variable!"
+
     try:
         headers = {'X-APISports-Key': os.environ.get('SPORTS_IO_API_KEY')}
         resp = requests.get(API_SPORTS_IO_PREFIX + endpoint, headers=headers, params=params)
@@ -110,7 +115,7 @@ def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
     Delete games that no longer exist."""
     print("=== pickem === ", "Updating game scores from API...")
 
-    api_params = {
+    asio_params = {
         'date': day.isoformat(),
         'league': league_id,
         'season': subseason.season.year
@@ -118,7 +123,10 @@ def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
 
     # Get the day's games from the API
     try:
-        api_games = call_sports_io_api('games', api_params)
+        if app.testing:
+            asio_games = get_test_data('all-sports.io_update.json')
+        else:
+            asio_games = call_sports_io_api('games', asio_params)
     except Exception as e:
         handle_api_errors(e)
         return
@@ -131,7 +139,7 @@ def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
     for db_game in saved_games:
         game_scheduled = False
 
-        for api_game in api_games:
+        for api_game in asio_games:
             if api_game['id'] == db_game.api_id:
                 game_scheduled = True
 
@@ -139,7 +147,7 @@ def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
             db_game.delete()
 
     # Check for game updates and games that were added after seeding
-    for api_game in api_games:
+    for api_game in asio_games:
         # Check for an existing game record
         select_by_id = db.select(Game).where(Game.api_id == api_game['id'])
         db_game = Game.get_first(select_by_id)
@@ -171,19 +179,27 @@ def seed_db():
     if not subseason.save():
         print("=== pickem ===", subseason.last_error)
 
-    api_params = {
+    asio_params = {
         'league': 1,
         'season': datetime.now().year
     }
 
     # Get the teams for MLB
     try:
-        asio_teams = call_sports_io_api('teams', api_params) or []
+        if app.testing:
+            asio_teams = get_test_data('all-sports.io_teams.json')
+        else:
+            asio_teams = call_sports_io_api('teams', asio_params) or []
     except Exception as e:
         handle_api_errors(e)
         return
-    
-    espn_teams = call_espn_teams_api() or []
+
+    if app.testing:
+        espn_teams = get_test_data('espn_teams.json')
+    else:
+        espn_teams = call_espn_teams_api() or []
+
+    # print(json.dumps(espn_teams))
     if not espn_teams:
         return
 
@@ -196,19 +212,22 @@ def seed_db():
         asio_team_id = [t for t in asio_teams if et['name'] in t['name'] or t['name'] == f"{et['location']} Indians"][0]['id']
         team = Team(et['name'], et['location'], et['abbreviation'], et['logos'][0]['href'], asio_team_id, league.id)
         if not team.save():
-            print(team, team.get_last_error())
+            print("=== pickem ===", team, team.get_last_error())
 
     # Add All-Star teams
     al = Team('American League', '', 'AL', 'https://a.espncdn.com/i/teamlogos/mlb/500/al.png', 1, league.id)
     if not al.save():
-        print(al, al.get_last_error())
+        print("=== pickem ===", al, al.get_last_error())
     nl = Team('National League', '', 'NL', 'https://a.espncdn.com/i/teamlogos/mlb/500/nl.png', 23, league.id)
     if not nl.save():
-        print(nl, nl.get_last_error())
+        print("=== pickem ===", nl, nl.get_last_error())
 
     # Get the games for MLB
     try:
-        games = call_sports_io_api('games', api_params) or []
+        if app.testing:
+            games = get_test_data('all-sports.io_games.json')
+        else:
+            games = call_sports_io_api('games', asio_params) or []
     except Exception as e:
         handle_api_errors(e)
         return
@@ -217,3 +236,6 @@ def seed_db():
         add_game(game, subseason.id)
 
     print("=== pickem === ", "Database ready!")
+
+def get_test_data(seed_file):
+    return json.load(open(app.instance_path.replace('/instance', '/tests/mock_api_data/') + seed_file))

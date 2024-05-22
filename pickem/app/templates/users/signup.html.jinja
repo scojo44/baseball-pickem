@@ -3,19 +3,21 @@
   <div class="auth-form">
     <h2>Sign up to save your picks</h2>
 
-    <form method="post" action="{{ url_for('auth.signup') }}">
+    <form method="post">
       {{ form.hidden_tag() }}
 
       {% for field in form if field.widget.input_type != 'hidden' %}
           {{ field.label }}
           {{ field(class="form-control") }}
           {% for error in field.errors %}
-            <span class="text-danger">{{ error }}</span>
+            <span class="text-error">{{ error }}</span>
           {% endfor %}
       {% endfor %}
 
-      <button>SIGN &nbsp; up</button>
-      <p class="auth-alt">Already done this?  <a id="login-link" href="{{ url_for('auth.login' )}}">Log in</a></p>
+      <p class="button-row">
+        <button>SIGN &nbsp; up</button>
+      </p>
+      <p class="auth-alt">Already done this?  <a id="login-link" href="{{ url_for('user.login' )}}">Log in</a></p>
     </form>
   </div>
 {% endblock %}

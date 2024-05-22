@@ -2,13 +2,10 @@
   <div class="card user-card">
     <div class="card-inner">
       <div class="image-wrapper">
-        <img src="{{ list_user.header_image_url }}" alt="" class="card-hero">
+        <img src="{{ list_user.image_url }}" alt="Image for {{ list_user.username }}" class="card-hero">
       </div>
       <div class="card-contents">
-        <a href="{{ url_for('user.messages', user_id=list_user.id) }}" class="card-link">
-          <img src="{{ list_user.image_url }}" alt="Image for {{ list_user.username }}" class="card-image">
-          <p>@{{ list_user.username }}</p>
-        </a>
+        <p>@{{ list_user.username }}</p>
       </div>
       <p class="card-bio">{{ list_user.bio }}</p>
     </div>

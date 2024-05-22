@@ -1,8 +1,9 @@
 from enum import StrEnum
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import sqlalchemy as sqla
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import DateTime
 from .helper import DBHelperMixin
 from . import db, int_pk, int_api_id, fk_subseason, fk_team, str20, str50
 
@@ -32,7 +33,7 @@ class Game(DBHelperMixin, db.Model):
     api_id: Mapped[int_api_id]
     # name: Mapped[str50]
     # short_name: Mapped[Optional[str20]]
-    start_time: Mapped[datetime]
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[GameStatus] = mapped_column(default=GameStatus.NS)
     # To store enum values in database: values_callable=lambda gs: [m.value for m in gs]), 
     home_team_id: Mapped[fk_team]
@@ -59,6 +60,7 @@ class Game(DBHelperMixin, db.Model):
         """Create a Game object."""
         # self.name = name
         # self.short_name = short_name
+        # Store times as Pacific time so games are filed under the correct date on My Picks and the Scoreboard
         self.start_time = start
         self.away_team_id = away_team_id
         self.home_team_id = home_team_id
@@ -93,8 +95,7 @@ class Game(DBHelperMixin, db.Model):
 
     @property
     def start_time_display(self):
-        time = self.start_time.time()
-        return time.strftime('%-I:%M %p')
+        return self.start_time.strftime('%-I:%M %p')
 
     def display_stat(self, stat: int|None):
         """Returns the stat if the game is in progress or finished or '-' if the game hasn't started or was cancelled."""
@@ -107,7 +108,7 @@ class Game(DBHelperMixin, db.Model):
         return {
             'id': self.id,
             'apiID': self.api_id,
-            'startTime': self.start_time_display,
+            'startTime': self.start_time.isoformat(),
             'status': str(self.status),
             'subseasonID': self.subseason_id,
             'winTeamID': self.winning_team.id if self.winning_team else None,

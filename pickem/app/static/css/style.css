@@ -2,16 +2,18 @@
 @font-face {
   font-family: 'Pep Rally';
   font-style: normal;
-  ascent-override: 90%; /* Adjust for the gap below the letters */
+  ascent-override: 105%; /* Adjust for the gap below the letters */
   src: local('Pep Rally'), url('PepRally.woff') format('woff');
 }
 
-/* ====================== General */
+/* ====================== General ====== */
 html, body {
   height: 100vh;
   margin: 0;
 }
 body {
+  display: flex;
+  flex-direction: column;
   color: white;
 }
 body.onboarding {
@@ -32,12 +34,16 @@ body.playing {
 .playing h1 {
   text-align: center;
 }
-
 main {
+  flex: auto;
   background: linear-gradient(to bottom, rgba(0,0,0,60%) 85%, transparent), transparent;
   color: white;
   width: 100%;
   padding: 1rem .5rem 5rem .5rem;
+}
+footer {
+  margin-left: .25rem;
+  margin-bottom: .25rem;
 }
 
 .notify {
@@ -52,25 +58,31 @@ main {
 .notify-success {
   background-color: rgba(34, 139, 34, 50%); /* forestgreen */
 }
-.notify-error {
+.notify-info {
   background-color: rgba(139, 69, 19, 50%); /* saddlebrown */
+}
+.notify-error {
+  background-color: rgba(64,0,0,60%) /* very dark red */
 }
 
 .error-page {
   margin: 0 5vw;
 }
 
+.button-row {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin: 1rem auto;
+}
 button {
-  display: block;
   font: bolder 2rem 'Pep Rally', sans-serif;
   letter-spacing: .1rem;
-  text-align: center;
   background-color: rgba(0,64,0,80%); /* darkgreen */
   color: white;
   border: .2rem solid rgba(0,64,0,80%); /* darkgreen */
   border-radius: .25em;
   padding: .2rem .6rem;
-  margin: 1rem auto;
   cursor: pointer;
   transition: font-size .05s ease-out;
 }
@@ -114,7 +126,83 @@ a.button {
   }
 }
 
-/* ======== Login/Signup forms ===== */
+/* ======================= Header Menu ====== */
+#logo-link {
+  font: bold 1.5rem 'Pep Rally', sans-serif;
+  letter-spacing: .1rem;
+  text-decoration: none;
+}
+#app-header {
+  background-color: rgba(0,64,0,80%); /* darkgreen */
+  color: white;
+  font-weight: bold;
+  padding: .25rem .5rem;
+  position: relative;
+}
+#app-header a {
+  color: white;
+  text-decoration: none;
+}
+
+#menu-toggle {
+  display: none;
+}
+
+#app-header menu {
+  list-style-type: none;
+  text-align: right;
+  margin: 0;
+}
+#app-header menu li {
+  margin: .3rem .5rem;
+}
+@media (min-width: 901px) {
+  #app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #logo-link {
+    flex: 0 0 auto;
+  }
+  #app-header menu {
+    flex: auto;
+  }
+  #app-header menu li {
+    display: inline;
+  }
+}
+
+@media (max-width: 900px) {
+  #menu-toggle {
+    display: block;
+    position: absolute;
+    top: .6rem;
+    right: .6rem;
+    user-select: none;
+  }
+  #menu-toggle input {
+    display: none;
+  }
+  #menu-toggle span {
+    display: block;
+    width: 33px;
+    height: 4px;
+    margin-bottom: 5px;
+    background-color: white;
+    border-radius: 3px;
+  }
+
+  #app-header menu {
+    display: none;
+    text-align: right;
+  }
+  #app-header input:checked ~ menu {
+    display: block;
+  }
+}
+
+/* ======== Forms ===== */
 .auth-form h2 {
   text-align: center;
   margin: 1rem 0;
@@ -124,13 +212,14 @@ a.button {
   margin: auto;
 }
 .auth-form label {
+  display: block;
   padding-right: .5rem;
+  margin-top: 1rem;
 }
 .auth-form input {
   background: rgba(0,0,0,40%);
   color: white;
-  margin-top: 0;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 .auth-form input:focus {
   background: rgba(48,48,48,60%);
@@ -141,6 +230,10 @@ a.button {
 }
 .auth-alt a:link { color: white; }
 .auth-alt a:visited { color: lightgray; }
+
+.text-error {
+  color: yellow;
+}
 
 /* =========== Games List ========= */
 .games-list {
@@ -168,7 +261,6 @@ a.button {
 }
 
 /* =============== Date Picker ========= */
-
 #date-picker {
   position: absolute;
   visibility: hidden;
@@ -210,7 +302,7 @@ a.button {
   font-weight: bold;
   text-align: center;
 }
-#my-picks table {
+#pick-dates {
   text-align: center;
 }
 
@@ -303,97 +395,7 @@ a.button {
   text-align: center;
 }
 
-/* ======================= NavBar */
-
-#logo-link {
-  font: bold 1.5rem 'Pep Rally', sans-serif;
-  letter-spacing: .1rem;
-  text-decoration: none;
-}
-#app-header {
-  background-color: rgba(0,64,0,80%); /* darkgreen */
-  color: white;
-  font-weight: bold;
-  padding: .5rem .5rem;
-  position: relative;
-}
-@media (max-width: 468px) {
-  #app-header li {
-    /* display: none; */
-  }
-}
-#app-header a {
-  color: white;
-  text-decoration: none;
-}
-
-#menu-toggle {
-  display: none;
-}
-
-#app-header menu {
-  list-style-type: none;
-  text-align: right;
-  margin: 0;
-}
-#app-header menu li {
-  margin: .3rem .5rem;
-}
-@media (min-width: 801px) {
-  #app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #logo-link {
-    flex: 0 0 auto;
-  }
-  #app-header menu {
-    flex: auto;
-  }
-  #app-header menu li {
-    display: inline;
-  }
-}
-
-@media (max-width: 800px) {
-  #menu-toggle {
-    display: block;
-    position: absolute;
-    top: .6rem;
-    right: .6rem;
-    user-select: none;
-  }
-  #menu-toggle input {
-    display: none;
-  }
-  #menu-toggle span {
-    display: block;
-    width: 33px;
-    height: 4px;
-    margin-bottom: 5px;
-    background-color: white;
-    border-radius: 3px;
-  }
-
-  #app-header menu {
-    display: none;
-    text-align: right;
-  }
-  #app-header input:checked ~ menu {
-    display: block;
-  }
-}
-
 /************** From Warbler *************************/
-
-/* ========================== User Edit Profile */
-
-#user_form input.form-control {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 12px;
-}
 
 /* ===================== User profile */
 

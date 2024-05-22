@@ -1,6 +1,7 @@
 from enum import Enum
 from datetime import datetime
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import DateTime
 from .helper import DBHelperMixin
 from . import db, int_pk, fk_season, str50
 
@@ -19,8 +20,8 @@ class SubSeason(DBHelperMixin, db.Model):
     name: Mapped[str50]
     season_id: Mapped[fk_season]
     type: Mapped[SubSeasonType]
-    start: Mapped[datetime]
-    end: Mapped[datetime]
+    start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     # "One" side of one-to-many relationships
     season: Mapped["Season"] = relationship(back_populates='subseasons')

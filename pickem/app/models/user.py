@@ -10,10 +10,11 @@ class User(DBHelperMixin, db.Model):
     __tablename__ = 'users'
 
     id: Mapped[int_pk]
-    # email: Mapped[str_email] = mapped_column(unique=True)
     username: Mapped[str50] = mapped_column(unique=True)
     password: Mapped[str_bcrypt_hash]
-    # image_url: Mapped[Optional[str]] = mapped_column(default="/static/images/default-pic.png")
+    image_url: Mapped[Optional[str]]
+    # Might add this back later
+    # email: Mapped[str_email] = mapped_column(unique=True)
 
     # "Many" side of one-to-many relationships
     picks: Mapped[list['Pick']] = relationship(back_populates='user', cascade='all')
@@ -28,11 +29,14 @@ class User(DBHelperMixin, db.Model):
         else: # Return picks from all time
             return [p for p in self.picks if p.is_correct]
 
+    def change_password(self, new_password):
+        self.password = bcrypt.generate_password_hash(new_password).decode('UTF-8')
+
     @classmethod
-    def signup(cls, username, password):
+    def signup(cls, username, password, image_url = None):
         """Sign up user.  Hashes password and adds user to system."""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        user = User(username=username, password=hashed_pwd)
+        user = User(username=username, password=hashed_pwd, image_url=image_url)
 
         db.session.add(user)
         return user
@@ -49,8 +53,7 @@ class User(DBHelperMixin, db.Model):
         """
         user = User.get_first(db.select(cls).where(User.username == username))
 
-        if user:
-            if bcrypt.check_password_hash(user.password, password):
-                return user
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
 
         return False

@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', async e => {
     return;
   }
 
-  if(gamesToPick.length == 0)
+  if(gamesToPick[0].games.length == 0 && gamesToPick[1].games.length == 0) {
     gamesSection.innerHTML = 'No games available';
+    gamesSection.style.textAlign = 'center';
+  }
 
   for(let list of gamesToPick) {
     processList(list, gamesSection);
@@ -57,7 +59,12 @@ function processList(list, gamesSection) {
 }
 
 function getGameHTML(game) {
-  return `<h6 class="game-heading">${game.startTime}</h6>
+  const gameLocalTime = new Date(game.startTime).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  return `<h6 class="game-heading"><time datetime="${game.startTime}">${gameLocalTime}</time></h6>
   <input type="radio" id="g${game.id}-t${game.awayTeam.id}" name="${game.id}" value="${game.awayTeam.id}">
   <label for="g${game.id}-t${game.awayTeam.id}">
     <img src="${game.awayTeam.logoURL}">

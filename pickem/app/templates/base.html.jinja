@@ -14,7 +14,9 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+  <header>
   {% block header %}{% endblock %}
+  </header>
 
   <main>
     {% block hero %}{% endblock %}
@@ -31,5 +33,8 @@
       </form>
     {%- endif %}
   </main>
+  <footer>
+  Copyright &copy; 2024 Scott Jones
+  </footer>
 </body>
 </html>

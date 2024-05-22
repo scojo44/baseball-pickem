@@ -34,7 +34,12 @@ class ScoreboardList extends DatedList {
   }
   
   getGameHTML(game, awayTeamWon, homeTeamWon, awayPickClass, homePickClass) {
-    let gameStatus = game.status === 'Not Started'? game.startTime : game.status;
+    const gameLocalTime = new Date(game.startTime).toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit"
+    });
+    const gameTime = `<time datetime="${game.startTime}">${gameLocalTime}</time>`;
+    const gameStatus = game.status === 'Not Started'? gameTime : game.status;
 
     return `<table>
       <tr>
@@ -61,6 +66,6 @@ class ScoreboardList extends DatedList {
 }
 
 document.addEventListener('DOMContentLoaded', e => {
-  initialDate = document.getElementById('scoreboard').dataset.initialDate;  // For My Picks page
-  new ScoreboardList();
+  const initialDate = document.getElementById('scoreboard').dataset.initialDate;  // For My Picks page
+  new ScoreboardList(initialDate);
 });

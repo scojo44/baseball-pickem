@@ -2,9 +2,10 @@
 {% block content %}
   <div class="hero">
     <p>Think you know baseball?</p>
-    <p><a class="button" href="{{ url_for('games.picksheet') }}"><button>PLAY&nbsp;&nbsp;now</button></a></p>
+    <p class="button-row">
+      <a class="button" href="{{ url_for('game.picksheet') }}"><button>PLAY&nbsp;&nbsp;now</button></a>
+    </p>
     <p>Put your knowledge to the test!</p>
-    {# <p>Pick which teams you think will win from a list of games to win bragging rights!</p> #}
   </div>
-  <p class="auth-alt">Already made your picks?  <a href="{{ url_for('auth.login') }}">Log in</a> to check 'em</p>
+  <p class="auth-alt">Already made your picks?  <a href="{{ url_for('user.login') }}">Log in</a> to check 'em</p>
 {% endblock %}

@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import DateTime
 from .helper import DBHelperMixin
 from . import db, int_pk, fk_user, fk_game, fk_team, User, Game, GameStatus, Team
 
@@ -11,8 +12,8 @@ class Pick(DBHelperMixin, db.Model):
     user_id: Mapped[fk_user]
     game_id: Mapped[fk_game]
     team_id: Mapped[fk_team]
-    # create_date: Mapped[datetime] = mapped_column(default=datetime.now())
-    # update_date: Mapped[datetime] = mapped_column(default=datetime.now())
+    create_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    update_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     # "One" side of one-to-many relationships
     user: Mapped[User] = relationship(back_populates='picks')
