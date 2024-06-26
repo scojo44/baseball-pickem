@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, session, url_for, g
 from .extensions import debug_toolbar, scheduler, DateConverter
 from .models import db, User, Game
 from .bp_user import CURRENT_USER_KEY
-from .api.baseball import seed_db
+from .api.baseball import seed_db, check_for_game_updates
 
 def create_app(config_filename = 'config_dev'):
     """Initialize the Pickem application."""
@@ -27,6 +27,10 @@ def create_app(config_filename = 'config_dev'):
          # Seed the database on first run
         if len(Game.get_all()) == 0:
             seed_db()
+
+        # Update the game scores at startup in production
+        if not app.debug and not app.testing:
+            check_for_game_updates() 
  
         # Register blueprints
         from .bp_user import bp as user_bp
