@@ -1,3 +1,5 @@
+# Configuration for development environment
+
 SQLALCHEMY_DATABASE_URI = 'postgresql:///pickem'
 SQLALCHEMY_ECHO = false
 SCHEDULER_API_ENABLED = true

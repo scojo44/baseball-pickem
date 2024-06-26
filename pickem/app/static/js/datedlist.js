@@ -1,16 +1,21 @@
+/** Base class for getting game and user list data from an API.
+ *  The lists can be limted to a single date. */
 class DatedList {
-  constructor(page, listName, initialDate = '') {
-    if (this.constructor == DatedList) {
+  /** Creates a new list
+   * @param {string} route - The base API route
+   * @param {string} listName - The name of the endpoint and JSON data
+   * @param {string} initialDate - The date string in isoformat to initialize the list.  Defaults to today.
+   */
+  constructor(route, listName, initialDate = '') {
+    if(this.constructor == DatedList) {
       throw new Error("Derive a class from DatedList to instantiate.");
     }
 
-    this.page = page;
-    this.board = document.getElementById(page);
+    this.route = route;
+    this.board = document.getElementById(route);
     this.listName = listName;
     this.initialDate = initialDate;
-
-    if(this.hasDatePicker())
-      this.setupHeading();
+    this.setupListHeader();
 
     // Set up the next/previous date links
     for(let link of document.getElementsByClassName('date-link'))
@@ -25,11 +30,17 @@ class DatedList {
     }, 1);
   }
 
-  hasDatePicker() {
+  /** Check if using the date picker widget
+   * @returns {boolean} True if using the date picker
+   */
+  usingDatePicker() {
     return !!document.getElementById('date-picker');
   }
 
-  setupHeading() {
+  /** Sets up the date picker heading */
+  setupListHeader() {
+    if(!this.usingDatePicker()) return;
+
     document.getElementById('date-label').addEventListener('click', e => {
       document.getElementById('date-picker').showPicker();
     });
@@ -39,32 +50,41 @@ class DatedList {
     });
   }
 
-  updateHeading(res) {
+  /** Updates the date picker heading
+   * @param {object} data - The data from the API response 
+   * @param {string} data.nextDay - isoformat date string for the next day button
+   * @param {string} data.prevDay - isoformat date string for the previous day button
+   * @param {number} data.userPoints - The user's points earned for that current day
+   */
+  updateListHeader({nextDay, prevDay, userPoints}) {
+    if(!this.usingDatePicker()) return;
+
     const nextLink = document.getElementById('next-date-link');
     const prevLink = document.getElementById('prev-date-link');
 
-    nextLink.dataset.date = res.data.nextDay;
-    prevLink.dataset.date = res.data.prevDay;
+    nextLink.dataset.date = nextDay;
+    prevLink.dataset.date = prevDay;
 
-    if(res.data.userPoints !== undefined)
-      document.querySelector('#user-points span').innerHTML = res.data.userPoints;
+    if(userPoints !== undefined)
+      document.querySelector('#user-points span').innerHTML = userPoints;
   }
 
+  /** Calls the API to get the list data
+   * @param {string} date - Filter data to this date in isoformat (optional)
+   */
   async loadFromAPI(date) {
     let items;
 
+    // Add the path seperator if given a date
     if(date)
       date = '/' + date;
 
     // Get the games and scores or users from the API
     try {
-      const res = await axios.get(this.page + '/' + this.listName + date);
+      const res = await axios.get(this.route + '/' + this.listName + date);
       items = res.data[this.listName];
-
       document.getElementById('date-label-text').innerHTML = res.data.dayDisplay;
-
-      if(this.hasDatePicker())
-        this.updateHeading(res);
+      this.updateListHeader(res.data);
     }
     catch(e) {
       console.log(`Error fetching ${this.listName} to pick:`, e);
@@ -81,17 +101,18 @@ class DatedList {
     this.board.innerHTML = '';
 
     for(let item of items)
-      this.board.append(this.processItem(item));
+      this.board.append(this.processListItem(item));
   }
 
-  processItem(item) {
-    throw new Error("Method 'processItem()' must be implemented.");
+  /** Abstract function for subclasses to process list items
+   * @param {Object} item - Item in the list to process
+   */
+  processListItem(item) {
+    throw new Error("Method 'processListItem()' must be implemented.");
   }
   
+  /** Abstract function to show a message when there's no items returned from the API */
   showNoItemsMsg() {
-    this.board.innerHTML = '';
-    const li = document.createElement('li');
-    li.innerHTML = 'No games on this date';
-    this.board.append(li);
+    throw new Error("Method 'showNoItemsMsg()' must be implemented.");
   }
 }

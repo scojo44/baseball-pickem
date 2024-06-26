@@ -6,7 +6,8 @@
   src: local('Pep Rally'), url('PepRally.woff') format('woff');
 }
 
-/* ====================== General ====== */
+/* ===== General ===== */
+
 html, body {
   height: 100vh;
   margin: 0;
@@ -94,12 +95,14 @@ a.button {
   text-decoration: none;
 }
 
-/******* Tools ********/
+/* ===== Tools ===== */
+
 .hide {
   display: none;
 }
 
-/* ============================ Onboarding */
+/* ===== Onboarding ===== */
+
 .onboarding h1 {
   font: bold 9vw 'Pep Rally', sans-serif;
   letter-spacing: .1rem;
@@ -126,7 +129,8 @@ a.button {
   }
 }
 
-/* ======================= Header Menu ====== */
+/* ===== Header Menu ===== */
+
 #logo-link {
   font: bold 1.5rem 'Pep Rally', sans-serif;
   letter-spacing: .1rem;
@@ -202,7 +206,8 @@ a.button {
   }
 }
 
-/* ======== Forms ===== */
+/* ===== Forms ===== */
+
 .auth-form h2 {
   text-align: center;
   margin: 1rem 0;
@@ -235,7 +240,8 @@ a.button {
   color: yellow;
 }
 
-/* =========== Games List ========= */
+/* ===== Games Lists ===== */
+
 .games-list {
   display: flex;
   flex-wrap: wrap;
@@ -260,7 +266,8 @@ a.button {
   padding-left: .25rem;
 }
 
-/* =============== Date Picker ========= */
+/* ===== Date Picker ===== */
+
 #date-picker {
   position: absolute;
   visibility: hidden;
@@ -281,7 +288,8 @@ a.button {
   border-radius: .5rem;
 }
 
-/* =============== My Picks ========= */
+/* ===== My Picks ===== */
+
 #my-picks {
   display: flex;
   gap: 1rem;
@@ -306,7 +314,8 @@ a.button {
   text-align: center;
 }
 
-/* =============== Picksheet ========= */
+/* ===== Picksheet ===== */
+
 #game-to-pick-template {
   display: none;
 }
@@ -324,7 +333,8 @@ a.button {
   border-radius: .5em;
 }
 
-/* =============== Scoreboard ========= */
+/* ===== Scoreboard ===== */
+
 #scoreboard-header {
   display: flex;
   flex-wrap: wrap;
@@ -367,7 +377,7 @@ a.button {
   color: lightgray;
 }
 
-/* =============== Leaderboard ========= */
+/* ===== Leaderboard ===== */
 
 #leaders {
   display: flex;
@@ -395,9 +405,9 @@ a.button {
   text-align: center;
 }
 
-/************** From Warbler *************************/
+/* ===== From Warbler ===== */
 
-/* ===================== User profile */
+/* ===== Edit Profile ===== */
 
 #profile-image,
 #profile-avatar {

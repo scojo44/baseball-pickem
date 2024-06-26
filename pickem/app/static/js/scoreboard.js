@@ -1,9 +1,18 @@
+/** List of games for the Scoreboard and My Picks pages */
 class ScoreboardList extends DatedList {
+  /** Creates a new Scoreboard game list
+   * @param {string} initialDate - Optional isoformat date string to load games
+   * from a different day than today
+   */
   constructor(initialDate = '') {
     super('scoreboard', 'games', initialDate);
   }
 
-  processItem(game) {
+  /** Generates an HTML list item for each game
+   * @param {Object} game - A user on the leaderboard
+   * @returns {Object} <li> element for the game
+   */
+  processListItem(game) {
     const awayTeamWon = game.winTeamID === game.awayTeam.id;
     const homeTeamWon = game.winTeamID === game.homeTeam.id;
     const tieGame = game.awayTeam.score === game.homeTeam.score;
@@ -33,6 +42,10 @@ class ScoreboardList extends DatedList {
     return li;
   }
   
+  /** Generates an HTML table for each game's info
+   * @param {Object} game - A game to display
+   * @returns {Object} <table> element for the game
+   */
   getGameHTML(game, awayTeamWon, homeTeamWon, awayPickClass, homePickClass) {
     const gameLocalTime = new Date(game.startTime).toLocaleTimeString([], {
       hour: "numeric",
@@ -53,6 +66,13 @@ class ScoreboardList extends DatedList {
     </table>`;
   }
   
+  /** Generates an HTML table row for a team's stats
+   * @param {Object} team - A team that played the game
+   * @param {boolean} isWinner - True if the team won the game
+   * @param {boolean} isGameOver - True if the game is over
+   * @param {boolean} pickClass - CSS class to style the team name
+   * @returns {Object} <tr> element for the team
+   */
   getTeamHTML(team, isWinner, isGameOver, pickClass) {
     let loserClass = isGameOver? 'loser':'';
     return `<tr>
@@ -63,8 +83,18 @@ class ScoreboardList extends DatedList {
       <td class="errors">${team.errors}</td>
     </tr>`;
   }
+  
+  /** Shows a message when there's no games returned from the API */
+  showNoItemsMsg() {
+    this.board.innerHTML = '';
+    const li = document.createElement('li');
+    li.innerHTML = 'No games on this date';
+    this.board.append(li);
+  }
 }
 
+// Get the list of games on page load
+// The My Picks page will have its chosen intial date stored in a data attribute
 document.addEventListener('DOMContentLoaded', e => {
   const initialDate = document.getElementById('scoreboard').dataset.initialDate;  // For My Picks page
   new ScoreboardList(initialDate);

@@ -1,3 +1,4 @@
+"""The Game model and GameStatus enumeration."""
 from enum import StrEnum
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -75,6 +76,7 @@ class Game(DBHelperMixin, db.Model):
         self.subseason_id = subseason_id
 
     def __repr__(self):
+        """String representation of a game."""
         return f"<Game #{self.id}: {self.away_team.name} @ {self.home_team.name}, {self.start_time.date()} {self.start_time_display}>"
 
     @property
@@ -84,10 +86,12 @@ class Game(DBHelperMixin, db.Model):
 
     @property
     def is_over(self):
+        """Returns true if the game has been played."""
         return self.status == GameStatus.FT
     
     @property
     def winning_team(self):
+        """Returns the ID of the winning team."""
         away_won = self.is_over and self.away_score > self.home_score
         home_won = self.is_over and self.away_score < self.home_score
         win_team_id = self.away_team if away_won else self.home_team if home_won else None
@@ -95,6 +99,7 @@ class Game(DBHelperMixin, db.Model):
 
     @property
     def start_time_display(self):
+        """A displayable version so the game's start time."""
         return self.start_time.strftime('%-I:%M %p')
 
     def display_stat(self, stat: int|None):
@@ -105,6 +110,7 @@ class Game(DBHelperMixin, db.Model):
             return stat
 
     def as_dict(self):
+        """Returns a dictionary version of the game."""
         return {
             'id': self.id,
             'apiID': self.api_id,

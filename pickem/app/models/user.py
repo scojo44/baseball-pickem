@@ -1,3 +1,4 @@
+"""The User model."""
 from datetime import date
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,16 +21,20 @@ class User(DBHelperMixin, db.Model):
     picks: Mapped[list['Pick']] = relationship(back_populates='user', cascade='all')
 
     def __repr__(self):
+        """String representation of a user."""
         return f"<User #{self.id}: {self.username}>"
 
     @property
     def correct_picks(self, day = None):
+        """Returns the user's correct picks, optionally filtering to just the date
+        specified by day."""
         if day:
             return [p for p in self.picks if p.is_correct and day == p.game.start_time.date()]
         else: # Return picks from all time
             return [p for p in self.picks if p.is_correct]
 
     def change_password(self, new_password):
+        """Change the user's password to new_password."""
         self.password = bcrypt.generate_password_hash(new_password).decode('UTF-8')
 
     @classmethod

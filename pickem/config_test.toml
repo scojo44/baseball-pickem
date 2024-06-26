@@ -1,3 +1,5 @@
+# Configuration for running tests
+
 SQLALCHEMY_DATABASE_URI = 'postgresql:///pickem_test'
 SQLALCHEMY_ECHO = false
 TESTING = true # Have Flask return real errors w/o HTML

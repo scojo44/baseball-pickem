@@ -1,3 +1,4 @@
+"""The Pickem app factory"""
 import tomllib
 from flask import Flask, render_template, redirect, session, url_for, g
 from .extensions import debug_toolbar, scheduler, DateConverter
@@ -47,6 +48,7 @@ def create_app(config_filename = 'config_dev'):
 
         @app.errorhandler(404)
         def show_not_found(e):
+            """Show the Not Found error page:"""
             return render_template("errors/404.html.jinja"), 404
 
         @app.before_request

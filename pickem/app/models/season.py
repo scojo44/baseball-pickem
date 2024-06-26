@@ -1,3 +1,4 @@
+"""The Season model."""
 from sqlalchemy.orm import Mapped, relationship
 from .helper import DBHelperMixin
 from . import db, int_pk, fk_league, str50
@@ -24,6 +25,7 @@ class Season(DBHelperMixin, db.Model):
         self.league_id = league_id
 
     def __repr__(self):
+        """String representation of a season."""
         return f"<Season #{self.id}: {self.name} [{self.year}]>"
 
     @property

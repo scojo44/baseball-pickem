@@ -1,7 +1,8 @@
+"""The database helper mixin."""
 from . import db
 
 class DBHelperMixin:
-    """Database methods common to all models.  Only make instances with subclasses."""
+    """Database methods common to all database models.  Only make instances with subclasses."""
     @classmethod
     def get(cls, primary_key):
         """Return one instance of a model using the primary key or None if it doesn't exist."""

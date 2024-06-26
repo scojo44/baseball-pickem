@@ -1,3 +1,4 @@
+"""The PickemTestCase class."""
 from unittest import TestCase
 from app import create_app
 from app.models import db, User
@@ -68,29 +69,35 @@ class PickemTestCase(TestCase):
             self.assertEqual(resp.status_code, 404)
 
     def assert_routed_to_landing(self, html):
+        """Check that html contains strings only found in the landing (home) page."""
         self.assertIn("Think you know baseball?", html)
         self.assertIn("<button>PLAY", html)
 
     def assert_routed_to_my_picks(self, html):
+        """Check that html contains strings only found in the My Picks page."""
         self.assertIn("<h1>My Picks</h1>", html)
 
     def assert_routed_to_picksheet(self, html):
+        """Check that html contains strings only found in the Make Your Picks page."""
         self.assertIn("<h1>Make Your Picks</h1>", html)
         self.assertIn("Pick the teams you think will win!", html)
         self.assertIn("picks</button>", html)
 
     def assert_routed_to_scoreboard(self, html):
+        """Check that html contains strings only found in the Scoreboard page."""
         self.assertIn("<h1>Scores & Schedule</h1>", html)
         self.assertIn("Your picks are marked with", html)
         self.assertIn("Scores update every 20 minutes.", html)
 
     def assert_routed_to_leaderboard(self, html):
+        """Check that html contains strings only found in the Leaderboard page."""
         self.assertIn("<h1>Leaderboard</h1>", html)
         self.assertIn("<h5>Season</h5>", html)
         self.assertIn("mario", html)
         self.assertIn("luigi", html)
 
     def assert_routed_to_signup(self, html):
+        """Check that html contains strings only found in the Signup page."""
         self.assertIn("<h2>Sign up", html)
         self.assertIn("Username:", html)
         self.assertIn("Password:", html)
@@ -99,12 +106,14 @@ class PickemTestCase(TestCase):
         self.assertIn("<button>SIGN", html)
 
     def assert_routed_to_login(self, html):
+        """Check that html contains strings only found in the Login page."""
         self.assertIn("<h2>Log in", html)
         self.assertIn("Username:", html)
         self.assertIn("Password:", html)
         self.assertIn("<button>LOG", html)
 
     def assert_routed_to_profile(self, html):
+        """Check that html contains strings only found in the Edit Profile page."""
         self.assertIn("<h2>Edit Your Profile", html)
         self.assertIn("Username:", html)
         self.assertIn("(Optional) Image URL:", html)
@@ -112,6 +121,7 @@ class PickemTestCase(TestCase):
         self.assertIn("<button>UPDATE", html)
 
     def assert_routed_to_change_password(self, html):
+        """Check that html contains strings only found in the Change Password page."""
         self.assertIn("<h2>Change Your Password", html)
         self.assertIn("Current Password:", html)
         self.assertIn("New Password:", html)

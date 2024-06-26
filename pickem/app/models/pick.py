@@ -1,3 +1,4 @@
+"""The Pick model."""
 from datetime import datetime, timezone
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import DateTime
@@ -27,13 +28,16 @@ class Pick(DBHelperMixin, db.Model):
         self.team_id = team
 
     def __repr__(self):
+        """String representation of a pick."""
         return f"<Pick #{self.id}: {self.user.username} picked {self.team.name} for Game #{self.game_id}>"
 
     @property
     def is_correct(self):
+        """Returns true if the user picked the team that won the game."""
         return self.game.winning_team and self.team.id == self.game.winning_team.id
 
     def as_dict(self):
+        """Returns a dictionary version of the pick."""
         return {
             'id': self.id,
             'userID': self.user_id,

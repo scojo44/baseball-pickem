@@ -238,4 +238,5 @@ def seed_db():
     print("=== pickem === ", "Database ready!")
 
 def get_test_data(seed_file):
+    """Loads test data for tests"""
     return json.load(open(app.instance_path.replace('/instance', '/tests/mock_api_data/') + seed_file))

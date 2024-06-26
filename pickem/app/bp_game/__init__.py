@@ -1,3 +1,4 @@
+"""Blueprint for game pages."""
 from flask import Blueprint
 
 UNSAVED_PICKS_KEY = 'Game Picks Session Key'

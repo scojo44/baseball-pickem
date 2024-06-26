@@ -1,3 +1,4 @@
+"""The Team model."""
 from sqlalchemy.orm import Mapped, relationship
 from .helper import DBHelperMixin
 from . import db, int_pk, int_api_id, fk_league, str20, str50
@@ -32,6 +33,7 @@ class Team(DBHelperMixin, db.Model):
         self.league_id = league_id
 
     def __repr__(self):
+        """String representation of a team."""
         return f"<Team #{self.id}: {self.full_name}>"
 
     @property
@@ -43,6 +45,7 @@ class Team(DBHelperMixin, db.Model):
             return f"{self.name}" # All-Star teams have an empty location field
 
     def as_dict(self):
+        """Returns a dictionary version of the team."""
         return {
             'id': self.id,
             'apiID': self.api_id,

@@ -1,3 +1,5 @@
+# Configuration for live environment
+
 SQLALCHEMY_ECHO = false
 SCHEDULER_API_ENABLED = true
 DEBUG_TB_INTERCEPT_REDIRECTS = false

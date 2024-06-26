@@ -1,3 +1,4 @@
+"""Routes for user pages."""
 import functools
 from sqlalchemy.exc import IntegrityError
 from flask import request, redirect, render_template, flash, session, url_for, g

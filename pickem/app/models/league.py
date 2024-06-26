@@ -1,3 +1,4 @@
+"""The League model."""
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .helper import DBHelperMixin
 from . import db, int_pk, int_api_id, fk_sport, str20, str50
@@ -32,4 +33,5 @@ class League(DBHelperMixin, db.Model):
         self.sport_id = sport_id
 
     def __repr__(self):
+        """String representation of a league."""
         return f"<League #{self.id}: {self.name}>"

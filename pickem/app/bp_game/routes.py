@@ -1,3 +1,4 @@
+"""Routes for game pages."""
 import json
 import sqlalchemy
 from datetime import datetime, date, timedelta, timezone

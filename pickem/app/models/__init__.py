@@ -24,6 +24,7 @@ str_bcrypt_hash = Annotated[str, 60]
 str_email = Annotated[str, 254] # Longest email address allowed in an SMTP transaction
 
 class Base(DeclarativeBase):
+    """Base class for all database models."""
     registry = registry(
         type_annotation_map={
             str20: String(20),

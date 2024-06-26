@@ -1,3 +1,4 @@
+"""The SubSeason model and SubSeasonType enumeration."""
 from enum import Enum
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,6 +7,7 @@ from .helper import DBHelperMixin
 from . import db, int_pk, fk_season, str50
 
 class SubSeasonType(Enum):
+    """A list of parts of a season."""
     preseason = 0
     regular = 1
     postseason = 2
@@ -38,4 +40,5 @@ class SubSeason(DBHelperMixin, db.Model):
         self.season_id = season_id
 
     def __repr__(self):
+        """String representation of a subseason."""
         return f"<SubSeason #{self.id}: {self.season.name} {self.name}>"

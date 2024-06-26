@@ -1,3 +1,4 @@
+"""Blueprint for user pages."""
 from flask import Blueprint
 
 CURRENT_USER_KEY = "User Logged In Session Key"
