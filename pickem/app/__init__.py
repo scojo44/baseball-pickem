@@ -1,7 +1,7 @@
 """The Pickem app factory"""
 import tomllib
 from flask import Flask, render_template, redirect, session, url_for, g
-from .extensions import debug_toolbar, scheduler, DateConverter
+from .extensions import bcrypt, debug_toolbar, scheduler, DateConverter
 from .models import db, User, Game
 from .bp_user import CURRENT_USER_KEY
 from .api.baseball import seed_db, check_for_game_updates
@@ -15,6 +15,7 @@ def create_app(config_filename = 'config_dev'):
 
     # Set up extensions
     debug_toolbar.init_app(app)
+    bcrypt.init_app(app)
     db.init_app(app)
 
     if not app.testing: # APScheduler complains the scheduler already started when running all tests

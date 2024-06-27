@@ -6,3 +6,4 @@ TESTING = true # Have Flask return real errors w/o HTML
 WTF_CSRF_ENABLED = false
 SECRET_KEY = 'Flask-Session-Key-751xyiienld983lndl'
 DEBUG_TB_HOSTS = ["dont-show-debug-toolbar"]
+BCRYPT_LOG_ROUNDS = 4 # Speed up tests by reducing bcrypt's hashing rounds
