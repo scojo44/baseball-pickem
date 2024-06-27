@@ -79,6 +79,8 @@ class DatedList {
     if(date)
       date = '/' + date;
 
+    this.toggleLoadingUI();
+
     // Get the games and scores or users from the API
     try {
       const res = await axios.get(this.route + '/' + this.listName + date);
@@ -91,6 +93,9 @@ class DatedList {
       this.showNoItemsMsg();
       return;
     }
+    finally {
+      this.toggleLoadingUI();
+    }
 
     if(items.length === 0) {
       this.showNoItemsMsg();
@@ -102,6 +107,10 @@ class DatedList {
 
     for(let item of items)
       this.board.append(this.processListItem(item));
+  }
+
+  toggleLoadingUI() {
+    document.querySelectorAll('.block-input').forEach(e => e.classList.toggle('hide'));
   }
 
   /** Abstract function for subclasses to process list items

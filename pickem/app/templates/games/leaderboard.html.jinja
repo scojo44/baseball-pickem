@@ -7,15 +7,18 @@
   <div id="leaders">
     <div>
       {% include "games/_date_picker.html.jinja" %}
-      <table>
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th>Points</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboard"></tbody>
-      </table>
+      <section class="loaded-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Points</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard"></tbody>
+        </table>
+        <div class="dim block-input hide"></div>
+      </section>
     </div>
 
     <div>
