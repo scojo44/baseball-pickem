@@ -1,19 +1,24 @@
 Baseball Pickem
 ===============
 
-Play [Baseball Pickem](https://baseball-pickem.onrender.com/), hosted at Render.com
+Think you know baseball?  Try your hand at picking the winners of Major League Baseball games by playing [Baseball Pickem](https://baseball-pickem.onrender.com/)!  Once you make your picks, come back and see how many points you earned for correctly picked games and compare your totals with other baseball fans!
+
+It's hosted at Render.com on their free tier so expect a long delay as the server starts the app from sleep mode.  Render puts free-tier apps to sleep if there hasn't been a request in a whlie.
 
 How to Play
 -----------
-This is set up as "do the fun part first."  From the landing page, hit Play Now and make your picks.  From there, sign up or log in to save your picks and check on them later.  Correct picks will earn one point each.  Once logged in, your picks are shown on the My Picks page and you can see who earned the most points on the Leaderboard page by day and the season overall.
+This is set up as Fun Part First.  From the landing page, hit the Play Now button and make your picks.  From there, sign up or log in to save your picks then come back to check on them later after some games have been played.  Correct picks will earn one point each.  Once logged in, your picks are shown on the My Picks page.  See who earned the most points on the Leaderboard page by day and the season overall.  Browse scores of past gamews and the schedule for future games on the Scoreboard page.
 
 Game scores are updated every 20 minutes since the all-sports.io API free tier allows only 100 requests per day.
 
 Under the Hood
 --------------
-The site is coded in Python using Flask, SQLAlchemy with data stored in a PostgreSQL database.
+The site is coded in Python using Flask and SQLAlchemy with data stored in a PostgreSQL database.
+- APScheduler handles the scoring updates
+- Bcrypt hashes user passwords
+- WTForms handles form generation and submission.
 
-A feature I'd like to highlight is the games are loaded with JavaScript API calls after Flask returns the HTML for the Scoreboard and My Picks pages.  This also happens for the games on the Make Picks page and the users on the Leaderboard.  This saves bandwidth and feels snappier on a fast connection, though loading and disabling UI would be good to add.
+A pattern I'd like to highlight is the games are loaded with JavaScript API calls using axios after Flask returns the HTML for the Scoreboard and My Picks pages.  This also happens for games on the Make Picks page and users on the Leaderboard.  This saves bandwidth and feels snappier on a fast connection.  The scores and user list are dimmed while the API is loading the data.
 
 APIs
 ----
@@ -22,7 +27,7 @@ I use these MLB baseball APIs:
   - Free tier allows 100 requests per day
 - [ESPN's hidden API endpoints](https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b)
 
-I may switch to just using ESPN's API for this, api-sports.io still hasn't updated the name of the Cleveland Guardians, still calling them the Indians and the game schedule returned is incomplete, seems to fizzle out in September.  I hope they will fill in the remaining games by then!
+I may have to switch to just using ESPN's API for this.  api-sports.io still hasn't updated the name of the Cleveland Guardians, still calling them the Indians and the game schedule returned is incomplete, seems to fizzle out in September.  I hope they will fill in the remaining games by then!
 
 Running Tests
 -------------
@@ -38,7 +43,7 @@ Deploying on Render
   - Render sets the port they want you to use in the PORT environment variable
 
 - Set environment variables:
-  - `FLASK_SQLALCHEMY_DATABASE_URI` Start URI with postgrsql://
+  - `FLASK_SQLALCHEMY_DATABASE_URI` Start URI with `postgrsql://`
   - `FLASK_SECRET_KEY` for secure Flask session cookies.  Set to anything and don't tell anyone.
   - `SPORTS_IO_API_KEY` Get one for baseball at api-sports.io
 
