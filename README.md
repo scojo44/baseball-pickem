@@ -32,9 +32,13 @@ I may have to switch to just using ESPN's API for this.  api-sports.io still has
 Running Tests
 -------------
 
-From the pickem directory, run
+From the pickem directory, run all tests with
 
-    python3 -m unittest [tests/test_thing.py]
+    python3 -m unittest
+
+Run a specific test with 
+
+    python3 -m unittest tests/test_thing.py
 
 Deploying on Render
 -------------------

@@ -95,31 +95,32 @@ def update_game(db_game: Game, api_game: dict):
 
 # These three functions are called by the scheduler.  Jobs are defined in the config file.
 def check_for_game_updates(): # Runs once per day
-    """Check for game schedule updates."""
-    with scheduler.app.app_context(): # Get game schedule updates two days out
-        check_for_updates(datetime.now().date() + timedelta(days=1), 1, SubSeason.get(1))
+    """Check for schedule updates for the next day's games."""
+    check_for_updates(datetime.now().date() + timedelta(days=1))
 
 def check_for_late_game_scores(): # Runs once per day
     """Check scores for yesterday's late games."""
-    with scheduler.app.app_context():
-        check_for_updates(datetime.now().date() - timedelta(days=1), 1, SubSeason.get(1))
+    check_for_updates(datetime.now().date() - timedelta(days=1))
 
 def check_for_score_updates(): # Runs every twenty minutes
     """Check for the latest game scores."""
     with scheduler.app.app_context():
-        check_for_updates(datetime.now().date(), 1, SubSeason.get(1))
+        check_for_updates(datetime.now().date())
 
-def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
+def check_for_updates(day: date, league_id: int = 1, subseason_id: int = 1) -> None:
     """Update game records with current scores, changed start times.
     Add games that were not on the original schedule.
     Delete games that no longer exist."""
     print("=== pickem === ", "Updating game scores from API...")
 
-    asio_params = {
-        'date': day.isoformat(),
-        'league': league_id,
-        'season': subseason.season.year
-    }
+    # Get the subseason object from the ID
+    with scheduler.app.app_context():
+        subseason = SubSeason.get(subseason_id)
+
+        asio_params = {
+            'league': league_id,
+            'season': subseason.season.year
+        }
 
     # Get the day's games from the API
     try:
@@ -131,8 +132,14 @@ def check_for_updates(day: date, league_id: int, subseason: SubSeason) -> None:
         handle_api_errors(e)
         return
 
-    # Get the day's games from the database
-    select_by_day = db.select(Game).where(Game.start_time.between(day, day + timedelta(days=1)))
+    if day is not None:
+        # Get the day's games from the database
+        asio_params['date'] = day.isoformat()
+        select_by_day = db.select(Game).where(Game.start_time.between(day, day + timedelta(days=1)))
+    else:
+        # Do a full refresh of all saved games
+        select_by_day = None
+
     saved_games: list[Game] = Game.get_all(select_by_day)
 
     # Remove games in the database that no longer exist

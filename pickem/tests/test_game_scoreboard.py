@@ -16,6 +16,25 @@ class ScoreboardTestCase(PickemTestCase):
         """Is the Scoreboard blocked when not logged in?"""
         self.is_get_route_as_anon_blocked("/scoreboard")
 
+    def test_scoreboard_full_update(self):
+        """Does scoreboard full update route allow admin access? (API call skipped in testing)"""
+        with self.app.test_client() as http:
+            self.login_user(http) # Logs in as admin
+            resp = http.get("/scoreboard/update", follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assert_routed_to_scoreboard(html)
+
+    def test_scoreboard_full_update_as_nonadmin_user(self):
+        """Does scoreboard full update route block non-admin users?"""
+        with self.app.test_client() as http:
+            self.is_admin_get_route_as_user_blocked("/scoreboard/update")
+
+    def test_scoreboard_full_update_as_anon(self):
+        """Is the scoreboard full update blocked when not logged in?"""
+        with self.app.test_client() as http:
+            self.is_get_route_as_anon_blocked("/scoreboard/update")
+
     def test_scoreboard_games_api(self):
         """Are a collection of games with scores returned as JSON?"""
         with self.app.test_client() as http:
