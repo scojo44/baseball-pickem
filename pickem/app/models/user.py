@@ -14,6 +14,7 @@ class User(DBHelperMixin, db.Model):
     username: Mapped[str50] = mapped_column(unique=True)
     password: Mapped[str_bcrypt_hash]
     image_url: Mapped[Optional[str]]
+    is_admin: Mapped[bool] = mapped_column(default=False)
     # Might add this back later
     # email: Mapped[str_email] = mapped_column(unique=True)
 
@@ -38,10 +39,10 @@ class User(DBHelperMixin, db.Model):
         self.password = bcrypt.generate_password_hash(new_password).decode('UTF-8')
 
     @classmethod
-    def signup(cls, username, password, image_url = None):
+    def signup(cls, username, password, image_url = None, is_admin = False):
         """Sign up user.  Hashes password and adds user to system."""
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-        user = User(username=username, password=hashed_pwd, image_url=image_url)
+        user = User(username=username, password=hashed_pwd, image_url=image_url, is_admin=is_admin)
 
         db.session.add(user)
         return user

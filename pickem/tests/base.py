@@ -30,7 +30,7 @@ class PickemTestCase(TestCase):
             # Hard-coded models and JSON files are loaded from app.api.baseball.seeddb()
 
             # Create test users
-            mario = User.signup(username="mario", password="99coins")
+            mario = User.signup(username="mario", password="99coins", is_admin=True)
             luigi = User.signup(username="luigi", password="mansion5")
             db.session.commit()
             self.mario_id = mario.id
@@ -73,6 +73,26 @@ class PickemTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("Access unauthorized.", html)
             self.assert_routed_to_login(html)
+
+    def is_admin_get_route_as_user_blocked(self, route):
+        """Check that the route blocks anon users."""
+        with self.app.test_client() as http:
+            self.login_user(http, self.luigi_id) # Logs in as regular user
+            resp = http.get(route, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized.", html)
+            self.assert_routed_to_my_picks(html)
+
+    def is_admin_post_route_as_user_blocked(self, route, post_data={}):
+        """Check that posting to the route blocks anon users."""
+        with self.app.test_client() as http:
+            self.login_user(http, self.luigi_id) # Logs in as regular user
+            resp = http.post(route, data=post_data, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized.", html)
+            self.assert_routed_to_my_picks(html)
 
     def missing_item_returns_404(self, route):
         """Check that the route returns a 404 error for missing items."""

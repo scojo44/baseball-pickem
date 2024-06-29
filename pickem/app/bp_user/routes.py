@@ -17,6 +17,18 @@ def login_required(f):
     
     return view_requiring_login
 
+def admin_login_required(f):
+    """Decorator for routes that requre administrator rights."""
+    @functools.wraps(f)
+    @login_required
+    def view_requiring_admin(*args, **kwargs):
+        if not g.user.is_admin:
+            flash("Access unauthorized.", "error")
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+    
+    return view_requiring_admin
+
 def do_login(user):
     """Log in user."""
     session[CURRENT_USER_KEY] = user.id
@@ -92,7 +104,7 @@ def logout():
     return redirect(url_for('home'))
 
 @bp.get('/users')
-@login_required
+@admin_login_required
 def list():
     """Page with listing of users.
 
@@ -164,6 +176,10 @@ def change_password():
 def delete():
     """Delete user."""
     if SecureEmptyForm().validate_on_submit():
+        if g.user.is_admin:
+            flash("You're an admin!  Are you sure?  You'll have to do it manually.")
+            return redirect(request.referrer or url_for("user.profile"))
+
         do_logout()
 
         if not g.user.delete():

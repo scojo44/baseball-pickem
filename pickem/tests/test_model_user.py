@@ -39,7 +39,23 @@ class UserModelTestCase(PickemTestCase):
             self.assertIsInstance(user, User)
             self.assertIsInstance(user.id, int)
             self.assertEqual(user.username, "zelda")
+            self.assertFalse(user.is_admin)
             self.assertIn("$2b$", user.password) # Check for bcrypt signature
+
+    def test_signup_admin(self):
+        """Test user the signup process."""
+        with self.app.app_context():
+            admin = User.signup(username="link", password="excuse-me-princess", is_admin=True)
+            self.assertEqual(admin.username, "link")
+ 
+            db.session.add(admin)
+            db.session.commit()
+ 
+            self.assertIsInstance(admin, User)
+            self.assertIsInstance(admin.id, int)
+            self.assertEqual(admin.username, "link")
+            self.assertTrue(admin.is_admin)
+            self.assertIn("$2b$", admin.password) # Check for bcrypt signature
 
     def test_signup_fail(self):
         """ Test signup validation with invalid data."""
