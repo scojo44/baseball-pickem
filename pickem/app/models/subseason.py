@@ -32,7 +32,7 @@ class SubSeason(DBHelperMixin, db.Model):
     games: Mapped[list['Game']] = relationship(back_populates='subseason')
 
     def __init__(self, name: str, type: SubSeasonType, start: datetime, end: datetime, season_id: int):
-        """Create a Season object."""
+        """Create a Subseason object."""
         self.name = name
         self.type = type
         self.start = start

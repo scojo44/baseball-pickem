@@ -30,8 +30,8 @@ class DBHelperMixin:
     def save(self):
         """Save the model instance to the database.  Returns whether the save was successful.
         When False, find out what happened with get_last_error()."""
-        db.session.add(self)
         try:
+            db.session.add(self)
             db.session.commit()
             return True
         except Exception as error:

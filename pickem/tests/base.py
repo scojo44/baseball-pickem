@@ -1,7 +1,7 @@
 """The PickemTestCase class."""
 from unittest import TestCase
 from app import create_app
-from app.models import db, User
+from app.models import db, User, Pick
 from app.bp_user import CURRENT_USER_KEY
 
 class PickemTestCase(TestCase):
@@ -21,15 +21,28 @@ class PickemTestCase(TestCase):
     def setUp(self):
         """Create test client, add sample data."""
         with self.app.app_context():
-            [db.session.delete(user) for user in User.get_all()]
+            [db.session.delete(p) for p in Pick.get_all()]
+            [db.session.delete(u) for u in User.get_all()]
             db.session.commit()
 
+            # Use the hard-coded Sport, League, Season and Subseason models (one each)
+            # Sample teams and games come from snapshot json files recorded from the APIs
+            # Hard-coded models and JSON files are loaded from app.api.baseball.seeddb()
+
+            # Create test users
             mario = User.signup(username="mario", password="99coins")
             luigi = User.signup(username="luigi", password="mansion5")
             db.session.commit()
-
             self.mario_id = mario.id
             self.luigi_id = luigi.id
+
+            # Create game picks
+            mario_pick = Pick(user=mario.id, game=171, team=28) # Correct pick
+            luigi_pick = Pick(user=luigi.id, game=171, team=25) # Incorrect pick
+            db.session.add_all([mario_pick, luigi_pick])
+            db.session.commit()
+            self.mario_pick_id = mario_pick.id
+            self.luigi_pick_id = luigi_pick.id
 
     def tearDown(self):
         """Clear any incomplete transactions."""

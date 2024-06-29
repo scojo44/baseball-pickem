@@ -24,6 +24,13 @@ I use these MLB baseball APIs:
 
 I may switch to just using ESPN's API for this, api-sports.io still hasn't updated the name of the Cleveland Guardians, still calling them the Indians and the game schedule returned is incomplete, seems to fizzle out in September.  I hope they will fill in the remaining games by then!
 
+Running Tests
+-------------
+
+From the pickem directory, run
+
+    python3 -m unittest [tests/test_thing.py]
+
 Deploying on Render
 -------------------
 - Gunicorn command: `gunicorn --bind=0.0.0.0:$PORT app:create_app\(\'config_live\'\)`

@@ -132,4 +132,6 @@ class PicksheetTestCase(PickemTestCase):
 
             # Make sure those picks weren't saved
             mario_picks = User.get(self.mario_id).picks
-            self.assertEqual(len(mario_picks), 0)
+            self.assertEqual(len(mario_picks), 1) # The sample pick in setUp()
+            bad_picks = [p for p in mario_picks if p.game_id == 500 or p.game_id == 700]
+            self.assertEqual(len(bad_picks), 0)

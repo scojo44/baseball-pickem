@@ -1,12 +1,11 @@
 """The Game model and GameStatus enumeration."""
 from enum import StrEnum
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Optional
-import sqlalchemy as sqla
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import DateTime
 from .helper import DBHelperMixin
-from . import db, int_pk, int_api_id, fk_subseason, fk_team, str20, str50
+from . import db, int_pk, int_api_id, fk_subseason, fk_team
 
 class GameStatus(StrEnum):
     """The status of a scheduled game."""
@@ -32,8 +31,6 @@ class Game(DBHelperMixin, db.Model):
 
     id: Mapped[int_pk]
     api_id: Mapped[int_api_id]
-    # name: Mapped[str50]
-    # short_name: Mapped[Optional[str20]]
     start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[GameStatus] = mapped_column(default=GameStatus.NS)
     # To store enum values in database: values_callable=lambda gs: [m.value for m in gs]), 
@@ -59,8 +56,6 @@ class Game(DBHelperMixin, db.Model):
 
     def __init__(self, start: datetime, away_team_id: int, home_team_id: int, api_id: int, subseason_id: int, status: GameStatus = GameStatus.NS, away_score: int = None, home_score: int = None, away_hits: int = None, home_hits: int = None, away_errors: int = None, home_errors: int = None):
         """Create a Game object."""
-        # self.name = name
-        # self.short_name = short_name
         # Store times as Pacific time so games are filed under the correct date on My Picks and the Scoreboard
         self.start_time = start
         self.away_team_id = away_team_id
@@ -94,8 +89,8 @@ class Game(DBHelperMixin, db.Model):
         """Returns the ID of the winning team."""
         away_won = self.is_over and self.away_score > self.home_score
         home_won = self.is_over and self.away_score < self.home_score
-        win_team_id = self.away_team if away_won else self.home_team if home_won else None
-        return win_team_id
+        win_team = self.away_team if away_won else self.home_team if home_won else None
+        return win_team
 
     @property
     def start_time_display(self):
