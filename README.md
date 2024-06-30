@@ -60,5 +60,5 @@ Future Enhancements
 
 - [ ] Add pick statistics page (% of correct picks broken down by home/away team, specific team, etc.)
 - [ ] Allow changing pick before the game starts
-- [ ] Show loading UI when switching scoreboard days
+- [x] Show loading UI when switching scoreboard days
 - [ ] Better logging system
