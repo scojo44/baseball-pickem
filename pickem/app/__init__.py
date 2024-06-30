@@ -6,13 +6,9 @@ from .models import db, User, Game
 from .bp_user import CURRENT_USER_KEY
 from .api.baseball import seed_db, check_for_game_updates
 
-def create_app(config_filename = 'config_live'):
+def create_app(config_filename = 'config_dev'):
     """Initialize the Pickem application."""
     app = Flask(__name__)
-
-    if app.debug:
-        config_filename = 'config_dev'
-
     app.config.from_file(f"../{config_filename}.toml", load=tomllib.load, text=False)
     app.config.from_prefixed_env()
     app.url_map.converters['date'] = DateConverter
