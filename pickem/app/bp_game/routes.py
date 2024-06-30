@@ -261,4 +261,5 @@ def get_leaders(date_filter = lambda pick_day: True):
             'points': len(correct_picks)
         })
 
+    leaders.sort(key=lambda user: user['points'], reverse=True)
     return leaders
