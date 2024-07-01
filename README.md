@@ -40,10 +40,19 @@ Run a specific test with
 
     python3 -m unittest tests/test_thing.py
 
+The test files will have the app load its config from the config_test.toml file.
+
+Running on a Development Machine
+--------------------------------
+
+Start Flask at the command line with
+
+    flask --debug run
+
 Deploying on Render
 -------------------
-- Gunicorn command: `gunicorn --bind=0.0.0.0:$PORT app:create_app\(\'config_live\'\)`
-  - Have to escape the () and quotes since Render uses bash to run this.  Might be a security issue on their part!
+- Gunicorn command: `gunicorn --bind=0.0.0.0:$PORT wsgi:app`
+  - The app will load its config from the config_live.toml file in production
   - Render sets the port they want you to use in the PORT environment variable
 
 - Set environment variables:
