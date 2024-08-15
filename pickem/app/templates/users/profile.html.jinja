@@ -1,34 +1,40 @@
 {# The Edit Profile page #}
 {% extends 'base_nav.html.jinja' %}
 {% block content %}
-  <div class="auth-form">
-    <h2>Edit Your Profile</h2>
-    <form method="post">
-      {{ form.hidden_tag() }}
+  <section class="edit-profile">
+    <div class="auth-form">
+      <h2>Edit Your Profile</h2>
+      <form method="post">
+        {{ form.hidden_tag() }}
 
-      {% for field in form if field.widget.input_type != 'hidden' and field.name != 'password' %}
-        {{ field.label }}
-        {{ field(class="form-control") }}
-        {% for error in field.errors %}
-          <span class="text-error">{{ error }}</span>
+        {% for field in form if field.widget.input_type != 'hidden' and field.name != 'password' %}
+          {{ field.label }}
+          {{ field(class="form-control") }}
+          {% for error in field.errors %}
+            <span class="text-error">{{ error }}</span>
+          {% endfor %}
         {% endfor %}
-      {% endfor %}
 
-      {{ form.password.label }}
-      {% if form.password.errors %}
-        {% for error in form.password.errors %}
-          <span class="text-error">
-            {{ error }}
-          </span>
-        {% endfor %}
-      {% endif %}
-      {{ form.password(class="form-control") }}
+        {{ form.password.label }}
+        {% if form.password.errors %}
+          {% for error in form.password.errors %}
+            <span class="text-error">
+              {{ error }}
+            </span>
+          {% endfor %}
+        {% endif %}
+        {{ form.password(class="form-control") }}
 
-      <p class="button-row">
-        <button>UPDATE</button>
-        <a class="button" href="{{ url_for('game.my_picks') }}"><button type="button">cancel</button></a>
-      </p>
-      <p class="auth-alt">Need to <a id="signup-link" href="{{ url_for('user.change_password') }}">change your password</a>?</p>
-    </form>
-  </div>
+        <p class="button-row">
+          <button>UPDATE</button>
+          <a class="button" href="{{ url_for('game.my_picks') }}"><button type="button">cancel</button></a>
+        </p>
+        <p class="auth-alt">Need to <a id="signup-link" href="{{ url_for('user.change_password') }}">change your password</a>?</p>
+      </form>
+    </div>
+
+    <aside class="profile-picture">
+      <img src="{{ form.image_url.data }}" alt="User image">
+    </aside>
+  </section>
 {% endblock %}

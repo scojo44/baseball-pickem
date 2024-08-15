@@ -259,6 +259,25 @@ a.button {
   color: yellow;
 }
 
+/* ===== Edit Profile ===== */
+
+.edit-profile {
+  display: flex;
+  justify-content: center;
+}
+@media (max-width: 820px) {
+  .edit-profile {
+    flex-direction: column;
+  }
+}
+.profile-picture {
+  text-align: center;
+}
+.profile-picture img {
+  max-width: 400px;
+  margin-left: 1rem;
+}
+
 /* ===== Games Lists ===== */
 
 .games-list {
@@ -312,6 +331,11 @@ a.button {
 #my-picks {
   display: flex;
   gap: 1rem;
+}
+#my-picks .user-picture {
+  display: block;
+  max-width: 13rem;
+  margin: 0 auto .5rem auto;
 }
 #date-menu {
   flex: 0 0 auto;

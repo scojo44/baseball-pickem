@@ -1,22 +1,25 @@
 {# The My Picks page #}
 {% extends 'base_nav.html.jinja' %}
 {% block content %}
-  <h1>My Picks</h1>
-  <p>Select a date to view your picks</p>
-  <div id="my-picks">
-    <div id="date-menu" class="loaded-content">
-      <table id="pick-dates">
-        <tr><th>Date</th><th>Points</th></tr>
-        {% for day in dates.keys()|reverse %}
-        <tr class="date-link" data-date="{{ day }}">
-          <td>{{ dates[day]['date_heading'] }}</td><td>{{ dates[day]['points'] }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-      <div class="block-input hide"></div>
+  <section id="my-picks">
+    <div>
+      <img class="user-picture" src="{{ g.user.image_url }}" alt="User picture">
+      <div id="date-menu" class="loaded-content">
+        <table id="pick-dates">
+          <tr><th>Date</th><th>Points</th></tr>
+          {% for day in dates.keys()|reverse %}
+          <tr class="date-link" data-date="{{ day }}">
+            <td>{{ dates[day]['date_heading'] }}</td><td>{{ dates[day]['points'] }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="block-input hide"></div>
+      </div>
+      <p>Select a date to view your picks</p>
     </div>
 
     <div id="picks">
+      <h1>My Picks</h1>
       {% if need_make_picks_button %}
       <p class="button-row">
         <a class="button" href="{{ url_for('game.picksheet') }}"><button>MAKE YOur picks</button></a>
@@ -32,7 +35,7 @@
       <br>Scores update every 20 minutes.
       <br>Times are shown in your timezone</p>
     </div>
-  </div>
+  </section>
 
   <script src="/static/js/datedlist.js"></script>
   <script src="/static/js/scoreboard.js"></script>
