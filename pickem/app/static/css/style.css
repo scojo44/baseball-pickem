@@ -100,13 +100,16 @@ a.button {
 .loaded-content {
   position: relative;
   z-index: 1;
+  min-height: 4em;
 }
 .dim {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: rgba(255,255,255,40%);
   background-color: rgba(0,0,0,40%);
-  box-shadow: 0 0 .25em .5rem rgba(0,0,0,40%)
+  box-shadow: 0 0 .25em .5rem rgba(0,0,0,40%);
+  font-size: 3em;
 }
 
 .block-input {
