@@ -150,17 +150,17 @@ a.button {
 
 /* ===== Header Menu ===== */
 
-#logo-link {
-  font: bold 1.5rem 'Pep Rally', sans-serif;
-  letter-spacing: .1rem;
-  text-decoration: none;
-}
 #app-header {
   background-color: rgba(0,64,0,80%); /* darkgreen */
   color: white;
   font-weight: bold;
   padding: .25rem .5rem;
   position: relative;
+}
+#logo-link {
+  font: bold 1.5rem 'Pep Rally', sans-serif;
+  letter-spacing: .1rem;
+  text-decoration: none;
 }
 #app-header a {
   color: white;
@@ -331,6 +331,9 @@ a.button {
 }
 #pick-dates {
   text-align: center;
+}
+#pick-dates tr.active {
+  font-weight: bold;
 }
 
 /* ===== Picksheet ===== */

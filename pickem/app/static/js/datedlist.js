@@ -50,7 +50,7 @@ class DatedList {
     });
   }
 
-  /** Updates the date picker heading
+  /** Scoreboard/Leaderboard: Updates the date picker heading on the 
    * @param {object} data - The data from the API response 
    * @param {string} data.nextDay - isoformat date string for the next day button
    * @param {string} data.prevDay - isoformat date string for the previous day button
@@ -67,6 +67,21 @@ class DatedList {
 
     if(userPoints !== undefined)
       document.querySelector('#user-points span').innerHTML = userPoints;
+  }
+
+  /** MyPicks: Highlights the chosen date in the date in the date menu
+   * @param {object} data - The data from the API response 
+   * @param {string} data.nextDay - isoformat date string for the next day button
+   * @param {string} data.prevDay - isoformat date string for the previous day button
+   * @param {number} data.userPoints - The user's points earned for that current day
+   */
+  highlightActivePickDate(shownDate) {
+    // MyPicks: Highlight the date in the date menu
+    const activeDate = document.querySelector(`#pick-dates tr[data-date="${shownDate}"]`);
+    if(activeDate) {
+      document.querySelector('#pick-dates tr.active')?.classList.remove('active');
+      activeDate.classList.add('active');
+    }
   }
 
   /** Calls the API to get the list data
@@ -87,6 +102,7 @@ class DatedList {
       items = res.data[this.listName];
       document.getElementById('date-label-text').innerHTML = res.data.dayDisplay;
       this.updateListHeader(res.data);
+      this.highlightActivePickDate(res.data.day);
     }
     catch(e) {
       console.log(`Error fetching ${this.listName} to pick:`, e);
