@@ -34,7 +34,9 @@
     </div>
 
     <aside class="profile-picture">
+      {% if form.image_url.data %}
       <img src="{{ form.image_url.data }}" alt="">
+      {% endif %}
     </aside>
   </section>
 {% endblock %}

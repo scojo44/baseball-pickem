@@ -1,4 +1,6 @@
 <div class="image-wrapper col-auto">
+  {% if list_user.image_url %}
   <img src="{{ list_user.image_url }}" alt="Image for {{ list_user.username }}" class="card-hero">
+  {% endif %}
   <p>@{{ list_user.username }}</p>
 </div>
