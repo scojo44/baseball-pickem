@@ -373,13 +373,15 @@ a.button {
   padding-left: .25rem;
   margin-bottom: .25rem;
   width: 100%;
+  border: 2px solid #333;
+  border-radius: .5em;
+  cursor: pointer;
 }
 .game input {
   display: none;
 }
 .game input:checked + label {
-  border: 2px solid green;
-  border-radius: .5em;
+  border-color: green;
 }
 
 /* ===== Scoreboard ===== */
