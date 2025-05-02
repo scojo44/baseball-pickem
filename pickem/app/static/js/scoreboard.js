@@ -52,7 +52,7 @@ class ScoreboardList extends DatedList {
       minute: "2-digit"
     });
     const gameTime = `<time datetime="${game.startTime}">${gameLocalTime}</time>`;
-    const gameStatus = game.status === 'Not Started'? gameTime : game.status;
+    const gameStatus = game.status === 'Scheduled'? gameTime : game.status;
 
     return `<table>
       <tr>
