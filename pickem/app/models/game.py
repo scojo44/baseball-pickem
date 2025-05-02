@@ -12,18 +12,20 @@ class GameStatus(IntEnum):
 
     This may be a complete list?  Appears to be a mix of sports.
     https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b?permalink_comment_id=4458293#gistcomment-4458293
+
+    Statuses marked with ??? have not been observed.
     """
     Scheduled = 1
     InProgress = 2
     Final = 3
-    Forfeit = 4
+    Forfeit = 4 # ???
     Canceled = 5
     Postponed = 6
     Delayed = 7
-    Suspended = 8
+    Suspended = 8 # ???
     RainDelay = 17
-    Abandoned = 27
-    Rescheduled = 29
+    Abandoned = 27 # ???
+    Rescheduled = 29 # ???
 
 class Game(DBHelperMixin, db.Model):
     """A game for users to try to guess the winner."""
@@ -108,11 +110,17 @@ class Game(DBHelperMixin, db.Model):
         
     def as_dict(self):
         """Returns a dictionary version of the game."""
+        statuses_to_show_detail = [
+            GameStatus.InProgress,
+            GameStatus.Delayed,
+            GameStatus.RainDelay
+        ]
+
         return {
             'id': self.id,
             'apiID': self.api_id,
             'startTime': self.start_time.isoformat(),
-            'status': self.status_detail if self.status in [GameStatus.InProgress, GameStatus.Delayed] else self.status.name,
+            'status': self.status_detail if self.status in statuses_to_show_detail else self.status.name,
             'statusDetail': self.status_detail,
             'subseasonID': self.subseason_id,
             'winTeamID': self.winning_team.id if self.winning_team else None,
