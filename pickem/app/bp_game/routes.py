@@ -93,7 +93,7 @@ def picksheet_games():
     one_day = timedelta(days=1)
 
     # Load games from today and tomorrow
-    select_today = db.select(Game).where(Game.start_time.between(today, tomorrow)).where(Game.status == GameStatus.NS).order_by(Game.start_time)
+    select_today = db.select(Game).where(Game.start_time.between(today, tomorrow)).where(Game.status == GameStatus.Scheduled).order_by(Game.start_time)
     select_tomorrow = db.select(Game).where(Game.start_time.between(tomorrow, tomorrow + one_day)).order_by(Game.start_time)
     today_games = Game.get_all(select_today)
     tomorrow_games = Game.get_all(select_tomorrow)

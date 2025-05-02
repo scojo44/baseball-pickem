@@ -12,7 +12,7 @@ class GameModelTestCase(PickemTestCase):
             self.assertEqual(game.home_team_id, 25)
             self.assertEqual(game.away_score, 10)
             self.assertEqual(game.home_score, 9)
-            self.assertEqual(game.status, GameStatus.FT)
+            self.assertEqual(game.status, GameStatus.Final)
             self.assertEqual(game.api_id, 152923)
             self.assertEqual(game.subseason_id, 1)
             # Test relationships

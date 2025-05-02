@@ -1,29 +1,29 @@
 """The Game model and GameStatus enumeration."""
-from enum import StrEnum
+from enum import IntEnum
 from datetime import datetime
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import DateTime
 from .helper import DBHelperMixin
-from . import db, int_pk, int_api_id, fk_subseason, fk_team
+from . import db, int_pk, int_api_id, str20, fk_subseason, fk_team
 
-class GameStatus(StrEnum):
-    """The status of a scheduled game."""
-    NS = 'Not Started'
-    IN1 = '1st'
-    IN2 = '2nd'
-    IN3 = '3rd'
-    IN4 = '4th'
-    IN5 = '5th'
-    IN6 = '6th'
-    IN7 = '7th'
-    IN8 = '8th'
-    IN9 = '9th'
-    INTR = 'Delay'
-    POST = 'Postponed'
-    ABD = 'Abandoned'
-    CANC = 'Canceled'
-    FT = 'Final'
+class GameStatus(IntEnum):
+    """The status of a scheduled game.
+
+    This may be a complete list?  Appears to be a mix of sports.
+    https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b?permalink_comment_id=4458293#gistcomment-4458293
+    """
+    Scheduled = 1
+    InProgress = 2
+    Final = 3
+    Forfeit = 4
+    Canceled = 5
+    Postponed = 6
+    Delay = 7
+    Suspended = 8
+    RainDelay = 17
+    Abandoned = 27
+    Rescheduled = 29
 
 class Game(DBHelperMixin, db.Model):
     """A game for users to try to guess the winner."""
@@ -32,8 +32,9 @@ class Game(DBHelperMixin, db.Model):
     id: Mapped[int_pk]
     api_id: Mapped[int_api_id]
     start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    status: Mapped[GameStatus] = mapped_column(default=GameStatus.NS)
-    # To store enum values in database: values_callable=lambda gs: [m.value for m in gs]), 
+    status: Mapped[GameStatus] = mapped_column(default=GameStatus.Scheduled)
+    # To store enum values in database: values_callable=lambda gs: [m.value for m in gs]),
+    status_detail: Mapped[str20]
     home_team_id: Mapped[fk_team]
     away_team_id: Mapped[fk_team]
     home_score: Mapped[Optional[int]]
@@ -54,13 +55,14 @@ class Game(DBHelperMixin, db.Model):
         """Create a Game object from the ESPN API."""
         return cls(team['name'], team['abbreviation'], team['location'], team['id'], league_id)
 
-    def __init__(self, start: datetime, away_team_id: int, home_team_id: int, api_id: int, subseason_id: int, status: GameStatus = GameStatus.NS, away_score: int = None, home_score: int = None, away_hits: int = None, home_hits: int = None, away_errors: int = None, home_errors: int = None):
+    def __init__(self, start: datetime, away_team_id: int, home_team_id: int, api_id: int, subseason_id: int, status: GameStatus = GameStatus.Scheduled, status_detail: str = '', away_score: int = None, home_score: int = None, away_hits: int = None, home_hits: int = None, away_errors: int = None, home_errors: int = None):
         """Create a Game object."""
         # Store times as Pacific time so games are filed under the correct date on My Picks and the Scoreboard
         self.start_time = start
         self.away_team_id = away_team_id
         self.home_team_id = home_team_id
         self.status = status
+        self.status_detail = status_detail
         self.away_score = away_score
         self.home_score = home_score
         self.away_hits = away_hits
@@ -77,12 +79,12 @@ class Game(DBHelperMixin, db.Model):
     @property
     def can_have_score(self):
         """Returns true if the game is in progress, finished or abandoned."""
-        return self.status not in [GameStatus.NS, GameStatus.POST, GameStatus.CANC]
+        return self.status not in [GameStatus.Scheduled, GameStatus.Postponed, GameStatus.Canceled]
 
     @property
     def is_over(self):
         """Returns true if the game has been played."""
-        return self.status == GameStatus.FT
+        return self.status == GameStatus.Final
     
     @property
     def winning_team(self):
@@ -98,19 +100,20 @@ class Game(DBHelperMixin, db.Model):
         return self.start_time.strftime('%-I:%M %p')
 
     def display_stat(self, stat: int|None):
-        """Returns the stat if the game is in progress or finished or '-' if the game hasn't started or was cancelled."""
-        if stat is None:
-            return 0 if self.can_have_score else '-'
-        else:
+        """Returns the stat value if the game is in progress or finished or '-' if the game hasn't started or was cancelled."""
+        if stat:
             return stat
-
+        else:
+            return 0 if self.can_have_score else '-'
+        
     def as_dict(self):
         """Returns a dictionary version of the game."""
         return {
             'id': self.id,
             'apiID': self.api_id,
             'startTime': self.start_time.isoformat(),
-            'status': str(self.status),
+            'status': self.status_detail if self.status == GameStatus.InProgress else self.status.name,
+            'statusDetail': self.status_detail,
             'subseasonID': self.subseason_id,
             'winTeamID': self.winning_team.id if self.winning_team else None,
             'awayTeam': {
