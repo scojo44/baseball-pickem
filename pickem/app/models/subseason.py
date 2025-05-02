@@ -8,11 +8,9 @@ from . import db, int_pk, fk_season, str50
 
 class SubSeasonType(Enum):
     """A list of parts of a season."""
-    preseason = 0
-    regular = 1
-    postseason = 2
-    allstar = 3
-    exhibition = 4
+    preseason = 1
+    regular = 2
+    postseason = 3
 
 class SubSeason(DBHelperMixin, db.Model):
     """A portion of a season (preseason, regular, postseason, etc)."""
