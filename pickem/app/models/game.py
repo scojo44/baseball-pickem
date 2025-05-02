@@ -19,7 +19,7 @@ class GameStatus(IntEnum):
     Forfeit = 4
     Canceled = 5
     Postponed = 6
-    Delay = 7
+    Delayed = 7
     Suspended = 8
     RainDelay = 17
     Abandoned = 27
@@ -112,7 +112,7 @@ class Game(DBHelperMixin, db.Model):
             'id': self.id,
             'apiID': self.api_id,
             'startTime': self.start_time.isoformat(),
-            'status': self.status_detail if self.status == GameStatus.InProgress else self.status.name,
+            'status': self.status_detail if self.status in [GameStatus.InProgress, GameStatus.Delayed] else self.status.name,
             'statusDetail': self.status_detail,
             'subseasonID': self.subseason_id,
             'winTeamID': self.winning_team.id if self.winning_team else None,
