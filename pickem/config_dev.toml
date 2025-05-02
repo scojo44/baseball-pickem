@@ -9,8 +9,8 @@ DEBUG_TB_HOSTS = ["dont-show-debug-toolbar"]
 
 # Flask-APScheduler expects jobs to be an array of dicts, an array of tables in TOML
 [[JOBS]]
-id = "update_baseball_schedule"
-func = "app.api.baseball:check_for_game_updates"
+id = "update_baseball_metadata"
+func = "app.api.baseball:check_for_metadata_updates"
 trigger = "interval"
 days = 1
 start_date = "01:00:00"
@@ -26,5 +26,5 @@ start_date = "04:00:00" # Extreme extra-inning games should be finished by this 
 id = "update_baseball_current_scores"
 func = "app.api.baseball:check_for_score_updates"
 trigger = "interval"
-minutes = 20
+minutes = 5
 # seconds = 4 # For testing

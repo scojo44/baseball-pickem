@@ -3,246 +3,284 @@ import os
 import json
 import requests
 from datetime import datetime, date, timedelta
+from time import sleep
 from flask import current_app as app
 from ..extensions import scheduler
 from ..models import db, Sport, League, Team, Season, SubSeason, SubSeasonType, Game
 
-# Get an API key at https://api-sports.io
-# No credit card required for free tier (as of April 23, 2024)
-API_SPORTS_IO_PREFIX = 'https://v1.baseball.api-sports.io/'
 API_ESPN_PREFIX = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/'
 
-def call_sports_io_api(endpoint: str, params: dict = {}) -> dict:
-    """Call the Sports.io API.  params is a dict containing query string parameters."""
-    if not os.environ.get('SPORTS_IO_API_KEY'):
-        raise "Missing API key environment variable!"
-
-    try:
-        headers = {'X-APISports-Key': os.environ.get('SPORTS_IO_API_KEY')}
-        resp = requests.get(API_SPORTS_IO_PREFIX + endpoint, headers=headers, params=params)
-        json = resp.json()
-
-        # Check for errors
-        if json['errors']:
-            raise Exception("Error callig API: " + str(json['errors']))
-
-        # The data is in the response object
-        return json['response']
-
-    except(requests.ConnectionError, requests.Timeout, requests.TooManyRedirects, requests.JSONDecodeError):
-        return None  # Ignore the error and signal by returning None
-
-def call_espn_teams_api() -> dict:
+def call_espn_api(endpoint: str, params: dict = None) -> dict:
     """Call the ESPN API."""
     try:
-        resp = requests.get(API_ESPN_PREFIX + 'teams')
-        json = resp.json()
-        teams = []
-        for team in json['sports'][0]['leagues'][0]['teams']:
-            teams.append(team['team'])
-        return teams
+        resp = requests.get(API_ESPN_PREFIX + endpoint, params)
+        return resp.json()
 
     except(requests.ConnectionError, requests.Timeout, requests.TooManyRedirects, requests.JSONDecodeError):
         return None  # Ignore the error and signal by returning None
+
+def get_api_games(date: date = None) -> list:
+    """Get games from the API.  Past and ongoing games will have scores.
+    
+    params is a dict of query parameters:
+    - dates: date string in like yyyymmdd or a range like yyyymmdd-yyyymmdd
+      Omitting this will return today's games
+    """
+
+    if date:
+        params = {}
+        params['dates'] = date.strftime('%Y%m%d')
+
+    resp = call_espn_api('scoreboard', params)
+    if not resp:
+        return []
+
+    return resp['leagues'][0], resp['events'] # League info, the list of games
 
 def handle_api_errors(error):
     """Handle errors returned from the API."""
-    print(error)
+    print('=== pickem ===', 'API Error:', error)
 
-def add_game(api_game: dict, subseason_id: int) -> None:
+def parse_int(value: str, default_value: int):
+    """Parse integer from string without crashing."""
+    try:
+        return int(value)
+    except(ValueError):
+        return default_value
+
+def add_game(api_game: dict, league: League, subseason: SubSeason) -> None:
     """Save a game to the database."""
-    select_hteam = db.select(Team).where(Team.api_id == api_game['teams']['home']['id'])
-    select_ateam = db.select(Team).where(Team.api_id == api_game['teams']['away']['id'])
+    add_or_update_game(api_game, None, league, subseason)
 
-    new_game = Game(
-        start = datetime.fromisoformat(api_game['date']),
-        away_team_id = Team.get_first(select_ateam).id,
-        home_team_id = Team.get_first(select_hteam).id,
-        api_id = api_game['id'],
-        subseason_id = subseason_id,
-        status = api_game['status']['short'],
-        away_score = api_game['scores']['away']['total'],
-        home_score = api_game['scores']['home']['total'],
-        away_hits = api_game['scores']['away']['hits'],
-        home_hits = api_game['scores']['home']['hits'],
-        away_errors = api_game['scores']['away']['errors'],
-        home_errors = api_game['scores']['home']['errors']
+def update_game(api_game: dict, db_game: Game, league: League) -> None:
+    """Update a game in the database."""
+    add_or_update_game(api_game, db_game, league)
+
+def add_or_update_game(api_game: dict, game: Game, league: League, subseason: SubSeason = None) -> None:
+    """Add a new or update an existing game in the database."""
+    # Check for missing teams.  All-star teams are not included in ESPN's /teams endpoint.
+    for team in [team['team'] for team in api_game['competitors']]:
+        # Convert some integer values from strings in ESPN's API response
+        team_api_id = parse_int(team['id'], 0)
+        if team_api_id == 0:
+            continue
+
+        if not Team.get_first(db.select(Team).where(Team.league_id == league.id).where(Team.api_id == team_api_id)):
+            add_team(team, league.id)
+
+    for team in api_game['competitors']:
+        if team['homeAway'] == 'away':  away_team = team
+        if team['homeAway'] == 'home':  home_team = team
+
+    select_ateam = db.select(Team).where(Team.api_id == away_team['id'])
+    select_hteam = db.select(Team).where(Team.api_id == home_team['id'])
+
+    # Convert some integer values from strings in ESPN's API response
+    game_status = parse_int(api_game['status']['type']['id'], 3)
+    away_score = parse_int(away_team['score'], 0)
+    home_score = parse_int(home_team['score'], 0)
+
+    if game: # Existing game:  Update scores and other info
+        game.status = game_status
+        game.status_detail = api_game['status']['type']['shortDetail']
+        game.away_score = away_score
+        game.home_score = home_score
+        game.away_hits = away_team['hits']
+        game.home_hits = home_team['hits']
+        game.away_errors = away_team['errors']
+        game.home_errors = home_team['errors']
+        # Start time could change for doubleheaders and TV network demands
+        game.start = datetime.fromisoformat(api_game['date'])
+        # These shouldn't change but update them just in case
+        game.away_team_id = Team.get_first(select_ateam).id
+        game.home_team_id = Team.get_first(select_hteam).id
+    else: # New game
+        game = Game(
+            start = datetime.fromisoformat(api_game['date']),
+            away_team_id = Team.get_first(select_ateam).id,
+            home_team_id = Team.get_first(select_hteam).id,
+            api_id = api_game['id'],
+            subseason_id = subseason.id,
+            status = game_status,
+            status_detail = api_game['status']['type']['shortDetail'],
+            away_score = away_score,
+            home_score = home_score,
+            away_hits = away_team['hits'],
+            home_hits = home_team['hits'],
+            away_errors = away_team['errors'],
+            home_errors = home_team['errors']
+        )
+
+    if not game.save():
+        print("=== pickem ===", game.away_team, game.get_last_error())
+
+def add_team(team: dict, league_id: int) -> None:
+    """Save a team to the database."""
+    # ESPN uses Athletics for both.  The Athletics do not currently associate with a location.
+    location = team['location'] if team['location'] != team['name'] else ''
+    logo_url = team['logos'][0]['href'] if team.get('logos') else team['logo']
+
+    new_team = Team(
+        team['name'],
+        location,
+        team['abbreviation'],
+        logo_url,
+        team['id'],
+        league_id
     )
 
-    if not new_game.save():
-        print("=== pickem ===", new_game.last_error)
+    if not new_team.save():
+        print("=== pickem ===", team, team.get_last_error())
 
-def update_game(db_game: Game, api_game: dict):
-    """Update a game in the database."""
-    # Update the scores
-    db_game.status = api_game['status']['short']
-    db_game.away_score = api_game['scores']['away']['total']
-    db_game.home_score = api_game['scores']['home']['total']
-    db_game.away_hits = api_game['scores']['away']['hits']
-    db_game.home_hits = api_game['scores']['home']['hits']
-    db_game.away_errors = api_game['scores']['away']['errors']
-    db_game.home_errors = api_game['scores']['home']['errors']
-    # Start time could change for doubleheaders and TV network demands
-    db_game.start = datetime.fromisoformat(api_game['date'])
-    # These shouldn't change but update them just in case
-    select_ateam = db.select(Team).where(Team.api_id == api_game['teams']['away']['id'])
-    select_hteam = db.select(Team).where(Team.api_id == api_game['teams']['home']['id'])
-    db_game.away_team = Team.get_first(select_ateam)
-    db_game.home_team = Team.get_first(select_hteam)
+def update_team(db_team: Team, api_team: dict) -> None:
+    """Update a team to the database."""
+    # ESPN uses Athletics for both.  The Athletics do not currently associate with a location.
+    location = api_team['location'] if api_team['location'] != api_team['name'] else ''
+    logo_url = api_team['logos'][0]['href'] if api_team.get('logos') else api_team['logo']
+    db_team.name = api_team['name']
+    db_team.location = location
+    db_team.abbreviation = api_team['abbreviation']
+    db_team.logo_url = logo_url
 
-    if not db_game.save():
-        print("=== pickem ===", db_game.last_error)
+    if not db_team.save():
+        print("=== pickem ===", db_team, db_team.get_last_error())
 
 # These three functions are called by the scheduler.  Jobs are defined in the config file.
-def check_for_game_updates(): # Runs once per day
-    """Check for schedule updates for the next day's games."""
-    check_for_updates(datetime.now().date() + timedelta(days=1))
+def check_for_metadata_updates(): # Runs once per day
+    """Check for changes to teams and game schedules."""
+    with scheduler.app.app_context():
+        # Check for teams that moved and/or changed their names.
+        check_for_league_updates()
+        # Check for schedule updates for the next day's games.
+        check_for_updates(datetime.now().date() + timedelta(days=1))
 
 def check_for_late_game_scores(): # Runs once per day
     """Check scores for yesterday's late games."""
-    check_for_updates(datetime.now().date() - timedelta(days=1))
+    with scheduler.app.app_context():
+        check_for_updates(datetime.now().date() - timedelta(days=1))
 
 def check_for_score_updates(): # Runs every twenty minutes
     """Check for the latest game scores."""
     with scheduler.app.app_context():
-        check_for_updates(datetime.now().date())
+        check_for_updates()
 
-def check_for_updates(day: date, league_id: int = 1, subseason_id: int = 1) -> None:
+def check_for_updates(day: date = date.today()) -> None:
     """Update game records with current scores, changed start times.
     Add games that were not on the original schedule.
     Delete games that no longer exist."""
-    print("=== pickem === ", "Updating game scores from API...")
-
-    # Get the subseason object from the ID
-    with scheduler.app.app_context():
-        subseason = SubSeason.get(subseason_id)
-
-        asio_params = {
-            'league': league_id,
-            'season': subseason.season.year
-        }
+    print("=== pickem === ", day, "Updating game scores from API...")
 
     # Get the day's games from the API
     try:
-        if app.testing:
-            asio_games = get_test_data('all-sports.io_update.json')
-        else:
-            asio_games = call_sports_io_api('games', asio_params)
+        api_league, api_games = get_api_games(day) if not app.testing else get_test_data('espn_scoreboard.json')
     except Exception as e:
         handle_api_errors(e)
         return
 
-    if day is not None:
-        # Get the day's games from the database
-        asio_params['date'] = day.isoformat()
-        select_by_day = db.select(Game).where(Game.start_time.between(day, day + timedelta(days=1)))
-    else:
-        # Do a full refresh of all saved games
-        select_by_day = None
-
+    # Get the day's games from the database
+    select_by_day = db.select(Game).where(Game.start_time.between(day, day + timedelta(days=1)))
     saved_games: list[Game] = Game.get_all(select_by_day)
 
     # Remove games in the database that no longer exist
     for db_game in saved_games:
         game_scheduled = False
 
-        for api_game in asio_games:
-            if api_game['id'] == db_game.api_id:
+        for game in api_games:
+            if game['id'] == db_game.api_id:
                 game_scheduled = True
 
         if not game_scheduled:
             db_game.delete()
 
-    # Check for game updates and games that were added after seeding
-    for api_game in asio_games:
+    # Get the current league and season
+    league_api_id = parse_int(api_league['id'], 0)
+    if league_api_id > 0:
+        league = League.get_first(db.select(League).where(League.api_id == league_api_id))
+        if league is not None:
+            season = Season.get_first(db.select(Season).where(Season.league_id == league.id and Season.year == api_league['season']['year']))
+            subseason = SubSeason.get_first(db.select(SubSeason).where(SubSeason.season_id == season.id))
+
+    # Check for new games and updates to existing games
+    for api_game in [game['competitions'][0] for game in api_games]:
+        # Convert some integer values from strings in ESPN's API response
+        game_api_id = parse_int(api_game['id'], 0)
+        if game_api_id == 0:
+            continue
+
         # Check for an existing game record
-        select_by_id = db.select(Game).where(Game.api_id == api_game['id'])
+        select_by_id = db.select(Game).where(Game.api_id == game_api_id)
         db_game = Game.get_first(select_by_id)
 
         if db_game: # Update existing game records
-            update_game(db_game, api_game)
-        else: # Add new/missing game
-            add_game(api_game, 1) # Could be a double-header or extra regular season game added as a playoff
+            update_game(api_game, db_game, league)
+        elif league and season: # Add new/missing game if we have a league and season
+            add_game(api_game, league, subseason) # Added game could be a double-header or extra regular season game added as a playoff
 
     print("=== pickem === ", "Games scores updated")
 
 def seed_db():
-    """Initialize the database with the complete game schedule."""
+    with scheduler.app.app_context():
+        season_start = check_for_league_updates()
+
+        # Get the complete game schedule
+        if not app.debug and not app.testing:
+            for n in range(1, 240):
+                check_for_updates(season_start + timedelta(days=n))
+                sleep(1)  # Be nice to the server
+
+def check_for_league_updates():
+    """Initialize the database."""
     print("=== pickem === ", "Seeding database...")
-    # Hardcode the sport and league
-    baseball = Sport('Baseball')
-    if not baseball.save():
-        print("=== pickem ===", baseball.last_error)
+    # Fetch a basic scoreboard update from the API to get the sport, league, season info and teams,
+    resp_teams = call_espn_api('teams') if not app.testing else get_test_data('espn_teams.json')
+    resp_score = call_espn_api('scoreboard') if not app.testing else get_test_data('espn_scoreboard.json')
 
-    league = League('Major League Baseball', 'MLB', 1, baseball.id)
-    if not league.save():
-        print("=== pickem ===", league.last_error)
+    sport = resp_teams['sports'][0]
+    baseball = Sport.get_first(db.select(Sport).where(Sport.api_id == sport['id']))
+    if not baseball:
+        baseball = Sport(sport['name'], sport['id'])
+        if not baseball.save():
+            print("=== pickem ===", baseball, baseball.get_last_error())
 
-    # Hard-code the seasons for now
-    season = Season('2024', 2024, league.id)
-    if not season.save():
-        print("=== pickem ===", season.last_error)
-    subseason = SubSeason('Regular Season', SubSeasonType.regular, datetime(2024, 3, 28), datetime(2024, 10, 1), season.id)
-    if not subseason.save():
-        print("=== pickem ===", subseason.last_error)
+    league = sport['leagues'][0]
+    mlb = League.get_first(db.select(League).where(League.sport_id == baseball.id and League.name == league['name']))
+    if not mlb:
+        mlb = League(league['name'], league['abbreviation'], league['id'], baseball.id)
+        if not mlb.save():
+            print("=== pickem ===", mlb.get_last_error())
 
-    asio_params = {
-        'league': 1,
-        'season': datetime.now().year
-    }
+    season = resp_score['leagues'][0]['season'] # Season comes from the scoreboard endpoint because is has more detail
+    current_season = Season.get_first(db.select(Season).where(Season.league_id == mlb.id and Season.year == season['year']))
+    if not current_season:
+        current_season = Season(season['displayName'], season['year'], mlb.id)
+        if not current_season.save():
+            print("=== pickem ===", current_season, current_season.get_last_error())
+
+    season_type = season['type']
+    subseason = SubSeason.get_first(db.select(SubSeason).where(SubSeason.season_id == current_season.id and SubSeason.name == season_type['name']))
+    if not subseason:
+        subseason = SubSeason(season_type['name'], SubSeasonType(season_type['type']), datetime.fromisoformat(season['startDate']), datetime.fromisoformat(season['endDate']), current_season.id)
+        if not subseason.save():
+            print("=== pickem ===", subseason, subseason.get_last_error())
 
     # Get the teams for MLB
-    try:
-        if app.testing:
-            asio_teams = get_test_data('all-sports.io_teams.json')
-        else:
-            asio_teams = call_sports_io_api('teams', asio_params) or []
-    except Exception as e:
-        handle_api_errors(e)
-        return
+    for api_team in [team['team'] for team in league['teams']]:
+        # Convert some integer values from strings in ESPN's API response
+        team_api_id = parse_int(api_team['id'], 0)
+        if team_api_id == 0:
+            continue
 
-    if app.testing:
-        espn_teams = get_test_data('espn_teams.json')
-    else:
-        espn_teams = call_espn_teams_api() or []
+        # Check for an existing team record
+        select_by_id = db.select(Team).where(Team.api_id == team_api_id)
+        db_team = Team.get_first(select_by_id)
 
-    # print(json.dumps(espn_teams))
-    if not espn_teams:
-        return
-
-    # Team names from all-sports.io that need fixed as of May 7, 2024
-    #9: Cleveland Indians is now the Guardians
-    #33: St. Louis Cardinals is missing a space, 'St.Louis Cardinals'
-
-    for et in espn_teams:
-        # Find the all-sports.io team ID for this ESPN team by searching for the team name.
-        asio_team_id = [t for t in asio_teams if et['name'] in t['name'] or t['name'] == f"{et['location']} Indians"][0]['id']
-        team = Team(et['name'], et['location'], et['abbreviation'], et['logos'][0]['href'], asio_team_id, league.id)
-        if not team.save():
-            print("=== pickem ===", team, team.get_last_error())
-
-    # Add All-Star teams
-    al = Team('American League', '', 'AL', 'https://a.espncdn.com/i/teamlogos/mlb/500/al.png', 1, league.id)
-    if not al.save():
-        print("=== pickem ===", al, al.get_last_error())
-    nl = Team('National League', '', 'NL', 'https://a.espncdn.com/i/teamlogos/mlb/500/nl.png', 23, league.id)
-    if not nl.save():
-        print("=== pickem ===", nl, nl.get_last_error())
-
-    # Get the games for MLB
-    try:
-        if app.testing:
-            games = get_test_data('all-sports.io_games.json')
-        else:
-            games = call_sports_io_api('games', asio_params) or []
-    except Exception as e:
-        handle_api_errors(e)
-        return
-
-    for game in games:
-        add_game(game, subseason.id)
+        if db_team: # Update existing team records
+            update_team(db_team, api_team)
+        else: # Add new/missing team
+            add_team(api_team, mlb.id)
 
     print("=== pickem === ", "Database ready!")
+    return subseason.start
 
 def get_test_data(seed_file):
     """Loads test data for tests"""

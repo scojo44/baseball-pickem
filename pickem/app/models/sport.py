@@ -8,7 +8,7 @@ class Sport(DBHelperMixin, db.Model):
     __tablename__ = 'sports'
 
     id: Mapped[int_pk]
-    # api_id: Mapped[int_api_id]
+    api_id: Mapped[int_api_id]
     name: Mapped[str20]
 
     # "Many" side of one-to-many relationships
@@ -19,7 +19,7 @@ class Sport(DBHelperMixin, db.Model):
         """Create a Sport object from the ESPN API."""
         return cls(sport['name'], sport['id'])
 
-    def __init__(self, name: str, api_id: int = None):
+    def __init__(self, name: str, api_id: int):
         """Create a Sport object."""
         self.api_id = api_id
         self.name = name

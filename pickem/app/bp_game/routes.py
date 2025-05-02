@@ -212,7 +212,7 @@ def scoreboard_by_date(day = date.today()):
 def scoreboard_full_update():
     """Force an update of all games"""
     if not app.testing: # Skip API call and just make sure admin rights are required
-        check_for_updates(None)
+        check_for_updates()
 
     return redirect(url_for('game.scoreboard'))
 
