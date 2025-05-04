@@ -27,4 +27,4 @@ id = "update_baseball_current_scores"
 func = "app.api.baseball:check_for_score_updates"
 trigger = "interval"
 minutes = 5
-# seconds = 4 # For testing
+# seconds = 4  # For quick testing

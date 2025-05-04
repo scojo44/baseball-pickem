@@ -31,7 +31,7 @@ def get_api_games(date: date = None) -> list:
         params = {}
         params['dates'] = date.strftime('%Y%m%d')
 
-    resp = call_espn_api('scoreboard', params)
+    resp = call_espn_api('scoreboard', params) if not app.testing else get_test_data('espn_scoreboard.json')
     if not resp:
         return []
 
@@ -172,7 +172,7 @@ def check_for_updates(day: date = date.today()) -> None:
 
     # Get the day's games from the API
     try:
-        api_league, api_games = get_api_games(day) if not app.testing else get_test_data('espn_scoreboard.json')
+        api_league, api_games = get_api_games(day)
     except Exception as e:
         handle_api_errors(e)
         return
@@ -219,20 +219,21 @@ def check_for_updates(day: date = date.today()) -> None:
     print("=== pickem === ", "Games scores updated")
 
 def seed_db():
-    with scheduler.app.app_context():
-        season_start = check_for_league_updates()
+    season_start = check_for_league_updates()
 
-        # Get the complete game schedule
-        if not app.debug and not app.testing:
-            for n in range(1, 240):
-                check_for_updates(season_start + timedelta(days=n))
-                sleep(1)  # Be nice to the server
+    # Get the complete game schedule
+    if app.debug or app.testing:
+        check_for_updates()
+    else:
+        for n in range(1, 240):
+            check_for_updates(season_start + timedelta(days=n))
+            sleep(1)  # Be nice to the server
 
 def check_for_league_updates():
     """Initialize the database."""
     print("=== pickem === ", "Seeding database...")
     # Fetch a basic scoreboard update from the API to get the sport, league, season info and teams,
-    resp_teams = call_espn_api('teams') if not app.testing else get_test_data('espn_teams.json')
+    resp_teams = call_espn_api('teams')      if not app.testing else get_test_data('espn_teams.json')
     resp_score = call_espn_api('scoreboard') if not app.testing else get_test_data('espn_scoreboard.json')
 
     sport = resp_teams['sports'][0]

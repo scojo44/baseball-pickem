@@ -13,10 +13,10 @@ class SubseasonModelTestCase(PickemTestCase):
             self.assertEqual(subseason.season_id, 1)
             # Test relationships
             self.assertEqual(subseason.season.id, 1)
-            self.assertEqual(len(subseason.games), 2682)
+            self.assertEqual(len(subseason.games), 27)
 
     def test_repr(self):
         """Test the __repr__ method."""
         with self.app.app_context():
             subseason = SubSeason.get(1)
-            self.assertEqual(f"{subseason}", f"<SubSeason #{subseason.id}: 2024 Regular Season>")
+            self.assertEqual(f"{subseason}", f"<SubSeason #{subseason.id}: 2025 Regular Season>")

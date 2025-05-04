@@ -28,7 +28,7 @@ class DBHelperMixinTestCase(PickemTestCase):
         """Test the get_first classmethod."""
         with self.app.app_context():
             team = Team.get_first(db.select(Team).where(Team.abbreviation == "COL"))
-            self.assertEqual(team.id, 9)
+            self.assertEqual(team.id, 10)
             self.assertEqual(team.name, "Rockies")
             self.assertEqual(team.location, "Colorado")
             # Team that doesn't exist
@@ -53,15 +53,15 @@ class DBHelperMixinTestCase(PickemTestCase):
         """Test the save method."""
         with self.app.app_context():
             # Create a pick and try to save it
-            pick = Pick(user=self.mario_id, game=373, team=25)
+            pick = Pick(user=self.mario_id, game=self.april30_first_game_id, team=8)
             pick.save()
             # Check that it got an ID
             self.assertTrue(isinstance(pick.id, int))
             # Check that it was saved
             saved_pick = Pick.get(pick.id)
             self.assertEqual(pick.game_id, saved_pick.game_id)
-            self.assertEqual(saved_pick.team.name, "Mariners")
-            self.assertTrue(saved_pick.is_correct)
+            self.assertEqual(saved_pick.team.name, "Reds")
+            self.assertFalse(saved_pick.is_correct)
 
     def test_delete(self):
         """Test the delete method."""

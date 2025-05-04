@@ -11,7 +11,7 @@ class TeamModelTestCase(PickemTestCase):
             self.assertEqual(team.name, "Mariners")
             self.assertEqual(team.location, "Seattle")
             self.assertEqual(team.abbreviation, "SEA")
-            self.assertEqual(team.api_id, 32)
+            self.assertEqual(team.api_id, 12)
             self.assertEqual(team.league_id, 1)
             self.assertEqual(team.logo_url, "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png")
             # Test relationships
@@ -35,7 +35,7 @@ class TeamModelTestCase(PickemTestCase):
             team = Team.get(25)
             self.assertDictEqual(team.as_dict(), {
                 'id': team.id,
-                'apiID': 32,
+                'apiID': 12,
                 'name': "Mariners",
                 'location': "Seattle",
                 'abbreviation': "SEA",

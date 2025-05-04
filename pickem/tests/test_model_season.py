@@ -8,8 +8,8 @@ class SeasonModelTestCase(PickemTestCase):
         """Test the basic model."""
         with self.app.app_context():
             season = Season.get(1)
-            self.assertEqual(season.name, "2024")
-            self.assertEqual(season.year, 2024)
+            self.assertEqual(season.name, "2025")
+            self.assertEqual(season.year, 2025)
             self.assertEqual(season.league_id, 1)
             # Test relationships
             self.assertEqual(season.league.id, 1)
@@ -19,10 +19,10 @@ class SeasonModelTestCase(PickemTestCase):
         """Test the __repr__ method."""
         with self.app.app_context():
             season = Season.get(1)
-            self.assertEqual(f"{season}", f"<Season #{season.id}: 2024 [2024]>")
+            self.assertEqual(f"{season}", f"<Season #{season.id}: 2025 [2025]>")
 
     def test_full_name(self):
         """Test the full_name property."""
         with self.app.app_context():
             season = Season.get(1)
-            self.assertEqual(season.full_name, "2024 Major League Baseball Season")
+            self.assertEqual(season.full_name, "2025 Major League Baseball Season")

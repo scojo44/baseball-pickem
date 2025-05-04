@@ -10,7 +10,7 @@ class LeagueModelTestCase(PickemTestCase):
             league = League.get(1)
             self.assertEqual(league.name, "Major League Baseball")
             self.assertEqual(league.abbreviation, "MLB")
-            self.assertEqual(league.api_id, 1)
+            self.assertEqual(league.api_id, 10)
             self.assertEqual(league.sport_id, 1)
             # Test relationships
             self.assertEqual(league.sport.id, 1)

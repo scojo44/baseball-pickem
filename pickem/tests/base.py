@@ -1,7 +1,8 @@
 """The PickemTestCase class."""
+from datetime import date
 from unittest import TestCase
 from app import create_app
-from app.models import db, User, Pick
+from app.models import db, User, Game, Pick
 from app.bp_user import CURRENT_USER_KEY
 
 class PickemTestCase(TestCase):
@@ -13,10 +14,16 @@ class PickemTestCase(TestCase):
         # Create the pickem app for testing using a test configuration
         self.app = create_app(config_filename='config_test')
         self.app.testing = True
+        self.maxDiff = None
 
         # Create the database tables
         with self.app.app_context():
             db.create_all()
+
+            # Find the ID of the first April 30th game added to the database.  First one should have the lowest ID.
+            # Used by scoreboard and picksheet route tests
+            select_april30 = db.select(Game).where(Game.start_time.between(date(2025, 4, 30), date(2025, 5, 1)))
+            self.april30_first_game_id = Game.get_first(select_april30).id
 
     def setUp(self):
         """Create test client, add sample data."""
@@ -37,8 +44,8 @@ class PickemTestCase(TestCase):
             self.luigi_id = luigi.id
 
             # Create game picks
-            mario_pick = Pick(user=mario.id, game=171, team=28) # Correct pick
-            luigi_pick = Pick(user=luigi.id, game=171, team=25) # Incorrect pick
+            mario_pick = Pick(user=mario.id, game=self.mario_pick_game_id, team=25) # Correct pick
+            luigi_pick = Pick(user=luigi.id, game=self.mario_pick_game_id, team=14) # Incorrect pick
             db.session.add_all([mario_pick, luigi_pick])
             db.session.commit()
             self.mario_pick_id = mario_pick.id
@@ -48,6 +55,10 @@ class PickemTestCase(TestCase):
         """Clear any incomplete transactions."""
         with self.app.app_context():
             db.session.rollback()
+
+    @property
+    def mario_pick_game_id(self):
+        return self.april30_first_game_id + 4
 
     # Helper functions
     def login_user(self, http, user_id=None):

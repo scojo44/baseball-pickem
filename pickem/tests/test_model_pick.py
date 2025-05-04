@@ -9,21 +9,21 @@ class PickModelTestCase(PickemTestCase):
         with self.app.app_context():
             pick = Pick.get(self.mario_pick_id)
             self.assertEqual(pick.user_id, self.mario_id)
-            self.assertEqual(pick.game_id, 171)
-            self.assertEqual(pick.team_id, 28)
+            self.assertEqual(pick.game_id, self.mario_pick_game_id)
+            self.assertEqual(pick.team_id, 25)
             # Test relationships
             self.assertEqual(pick.user.id, self.mario_id)
             self.assertEqual(pick.user.username, "mario")
-            self.assertEqual(pick.game.id, 171)
+            self.assertEqual(pick.game.id, self.mario_pick_game_id)
             self.assertEqual(pick.game.home_score, 9)
-            self.assertEqual(pick.team.id, 28)
-            self.assertEqual(pick.team.name, "Rangers")
+            self.assertEqual(pick.team.id, 25)
+            self.assertEqual(pick.team.name, "Mariners")
 
     def test_repr(self):
         """Test the __repr__ method."""
         with self.app.app_context():
             pick = Pick.get(self.mario_pick_id)
-            self.assertEqual(f"{pick}", f"<Pick #{pick.id}: mario picked Rangers for Game #171>")
+            self.assertEqual(f"{pick}", f"<Pick #{pick.id}: mario picked Mariners for Game #{self.mario_pick_game_id}>")
 
     def test_is_correct(self):
         """Test the is_correct property for a correct pick."""
@@ -42,8 +42,8 @@ class PickModelTestCase(PickemTestCase):
             self.assertDictEqual(pick.as_dict(), {
                 'id': self.mario_pick_id,
                 'userID': self.mario_id,
-                'gameID': 171,
-                'teamID': 28,
+                'gameID': self.mario_pick_game_id,
+                'teamID': 25,
                 'correct': True
             }
 )
