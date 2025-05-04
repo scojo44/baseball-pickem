@@ -65,8 +65,8 @@ class GameModelTestCase(PickemTestCase):
             self.assertEqual(game.display_stat(None), 0)
             game = Game.get_first(db.select(Game).where(Game.status == GameStatus.Delayed)) # Started, but delayed for some other reason
             self.assertEqual(game.display_stat(None), 0)
-            # game = Game.get_first(db.select(Game).where(Game.status == GameStatus.Postponed)) # Started, but postponed before becoming an official game (5+ innings played)
-            # self.assertEqual(game.display_stat(None), "-")
+            game = Game.get_first(db.select(Game).where(Game.status == GameStatus.Postponed)) # Started, but postponed before becoming an official game (5+ innings played)
+            self.assertEqual(game.display_stat(None), "-")
             game = Game.get_first(db.select(Game).where(Game.status == GameStatus.Canceled)) # Cancelled before scheduled time
             self.assertEqual(game.display_stat(None), "-")
 
