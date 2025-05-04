@@ -3,7 +3,7 @@ import json
 import sqlalchemy
 from datetime import datetime, date, timedelta, timezone
 from flask import current_app as app, redirect, render_template, session, flash, url_for, g
-from ..api.baseball import check_for_updates
+from ..api.baseball import update_all_games
 from ..models import db, User, Team, Game, GameStatus, Pick
 from ..forms import GamePickForm
 from ..bp_user.routes import login_required, admin_login_required
@@ -216,7 +216,7 @@ def scoreboard_by_date(day = date.today()):
 def scoreboard_full_update():
     """Force an update of all games"""
     if not app.testing: # Skip API call and just make sure admin rights are required
-        check_for_updates()
+        update_all_games()
 
     return redirect(url_for('game.scoreboard'))
 

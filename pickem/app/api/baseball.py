@@ -219,18 +219,25 @@ def check_for_updates(day: date = date.today()) -> None:
     print("=== pickem === ", "Games scores updated")
 
 def seed_db():
-    season_start = check_for_league_updates()
+    """Initialize the database."""
+    check_for_league_updates()
 
     # Get the complete game schedule
     if app.debug or app.testing:
         check_for_updates()
     else:
-        for n in range(1, 240):
-            check_for_updates(season_start + timedelta(days=n))
-            sleep(1)  # Be nice to the server
+        update_all_games()
+
+def update_all_games():
+    """Force an update check for all games."""
+    season_start = check_for_league_updates()
+
+    for n in range(1, 240):
+        check_for_updates(season_start + timedelta(days=n))
+        sleep(1)  # Be nice to the server
 
 def check_for_league_updates():
-    """Initialize the database."""
+    """Create or update the sport, league, season and teams."""
     print("=== pickem === ", "Seeding database...")
     # Fetch a basic scoreboard update from the API to get the sport, league, season info and teams,
     resp_teams = call_espn_api('teams')      if not app.testing else get_test_data('espn_teams.json')
