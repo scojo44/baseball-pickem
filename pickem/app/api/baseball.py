@@ -1,4 +1,4 @@
-"""Baseball API updates provided by api-sports.io"""
+"""Baseball API updates provided by ESPN's hidden endpoints"""
 import os
 import json
 import requests

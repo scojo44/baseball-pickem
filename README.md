@@ -9,7 +9,7 @@ How to Play
 -----------
 This is set up as Fun Part First.  From the landing page, hit the Play Now button and make your picks.  From there, sign up or log in to save your picks then come back to check on them later after some games have been played.  Correct picks will earn one point each.  Once logged in, your picks are shown on the My Picks page.  See who earned the most points on the Leaderboard page by day and the season overall.  Browse scores of past gamews and the schedule for future games on the Scoreboard page.
 
-Game scores are updated every 20 minutes since the all-sports.io API free tier allows only 100 requests per day.
+Game scores are updated every 5 minutes.
 
 Under the Hood
 --------------
@@ -22,12 +22,15 @@ A pattern I'd like to highlight is the games are loaded with JavaScript API call
 
 APIs
 ----
-I use these MLB baseball APIs:
-- [api-sports.io](https://api-sports.io/)
-  - Free tier allows 100 requests per day
+I use this API for baseball scores and initializing leagues, seasons and teams:
 - [ESPN's hidden API endpoints](https://gist.github.com/akeaswaran/b48b02f1c94f873c6655e7129910fc3b)
+  - There's a wealth of information available if I were to enhance the site
 
-I may have to switch to just using ESPN's API for this.  api-sports.io still hasn't updated the name of the Cleveland Guardians, still calling them the Indians and the game schedule returned is incomplete, seems to fizzle out in September.  I hope they will fill in the remaining games by then!
+I originally used this API's free tier while only getting the teams from ESPN:
+- [api-sports.io](https://api-sports.io/)
+  - Now no longer has access to scores for recent games.
+  - Can only get scores for the 2023 season or earlier.
+  - Allows only 100 requests per day
 
 Running Tests
 -------------
@@ -58,7 +61,6 @@ Deploying on Render
 - Set environment variables:
   - `FLASK_SQLALCHEMY_DATABASE_URI` Start URI with `postgrsql://`
   - `FLASK_SECRET_KEY` for secure Flask session cookies.  Set to anything and don't tell anyone.
-  - `SPORTS_IO_API_KEY` Get one for baseball at api-sports.io
 
 - Set Postgres timezone to Pacific time
   - On Aiven, go to Service Settings, advanced configuration, add config option: pg.timezone
