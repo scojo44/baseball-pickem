@@ -231,10 +231,11 @@ def seed_db():
 def update_all_games():
     """Force an update check for all games."""
     season_start = check_for_league_updates()
+    diff: timedelta = date.today() - season_start.date()
 
-    for n in range(1, 240):
-        check_for_updates(season_start + timedelta(days=n))
-        sleep(1)  # Be nice to the server
+    for n in range(1, diff.days):
+        check_for_updates(date.today() - timedelta(days=n))
+        sleep(20)  # Be nice to the server
 
 def check_for_league_updates():
     """Create or update the sport, league, season and teams."""
